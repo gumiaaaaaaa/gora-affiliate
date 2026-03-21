@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { AREAS, BUDGET_RANGES, GROUP_SIZES, LEVELS } from "@/constants/areas";
 import type { AreaCode, BudgetRange, GroupSize, Level } from "@/types/shindan";
@@ -16,7 +16,7 @@ type FormState = {
   date: string;
 };
 
-export default function ShindanPage() {
+function ShindanForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -228,5 +228,19 @@ export default function ShindanPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function ShindanPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center py-20">
+          <div className="text-gray-400">読み込み中...</div>
+        </div>
+      }
+    >
+      <ShindanForm />
+    </Suspense>
   );
 }

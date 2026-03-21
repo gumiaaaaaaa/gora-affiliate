@@ -1,15 +1,11 @@
+"use client";
+
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { filterCourses } from "@/lib/mock-data";
 import { AREAS, BUDGET_RANGES, GROUP_SIZES, LEVELS } from "@/constants/areas";
 import GolfCourseCard from "@/components/GolfCourseCard";
-
-type SearchParams = {
-  area?: string;
-  budget?: string;
-  groupSize?: string;
-  level?: string;
-  date?: string;
-};
 
 // ラベルを取得するヘルパー関数
 function getAreaLabel(code: string) {
@@ -25,24 +21,24 @@ function getLevelLabel(code: string) {
   return LEVELS.find((l) => l.code === code)?.label ?? code;
 }
 
-export default function ResultPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
-  const courses = filterCourses({
-    area: searchParams.area,
-    budget: searchParams.budget,
-    level: searchParams.level,
-  });
+function ResultContent() {
+  const searchParams = useSearchParams();
+
+  const area = searchParams.get("area") ?? "";
+  const budget = searchParams.get("budget") ?? "";
+  const groupSize = searchParams.get("groupSize") ?? "";
+  const level = searchParams.get("level") ?? "";
+  const date = searchParams.get("date") ?? "";
+
+  const courses = filterCourses({ area, budget, level });
 
   // 診断条件を「条件タグ」として表示するリスト
   const conditions = [
-    searchParams.area && { label: "エリア", value: getAreaLabel(searchParams.area) },
-    searchParams.budget && { label: "予算", value: getBudgetLabel(searchParams.budget) },
-    searchParams.groupSize && { label: "人数", value: getGroupSizeLabel(searchParams.groupSize) },
-    searchParams.level && { label: "レベル", value: getLevelLabel(searchParams.level) },
-    searchParams.date && { label: "希望日", value: searchParams.date },
+    area && { label: "エリア", value: getAreaLabel(area) },
+    budget && { label: "予算", value: getBudgetLabel(budget) },
+    groupSize && { label: "人数", value: getGroupSizeLabel(groupSize) },
+    level && { label: "レベル", value: getLevelLabel(level) },
+    date && { label: "希望日", value: date },
   ].filter(Boolean) as { label: string; value: string }[];
 
   return (
@@ -98,5 +94,19 @@ export default function ResultPage({
         </Link>
       </div>
     </div>
+  );
+}
+
+export default function ResultPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center py-20">
+          <div className="text-gray-400">読み込み中...</div>
+        </div>
+      }
+    >
+      <ResultContent />
+    </Suspense>
   );
 }

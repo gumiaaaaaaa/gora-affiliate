@@ -28,7 +28,7 @@ export default function Footer() {
 
         <div className="border-t border-gray-700 mt-8 pt-6 text-xs text-gray-500 text-center">
           <p>本サイトは楽天アフィリエイトプログラムを利用しています。</p>
-          <p className="mt-1">© 2024 関東ゴルフ場ナビ</p>
+          <p className="mt-1">© 2025 関東ゴルフ場ナビ</p>
         </div>
       </div>
     </footer>
