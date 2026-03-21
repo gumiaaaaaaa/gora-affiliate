@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-golf-cream text-gray-800;
+  }
+}
+
+@layer utilities {
+  .golf-gradient {
+    background: linear-gradient(135deg, #1a6b3c 0%, #0f4024 100%);
+  }
+}
