@@ -2,10 +2,10 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import { filterCourses } from "@/lib/mock-data";
+import { Suspense, useEffect, useState } from "react";
 import { AREAS, BUDGET_RANGES, GROUP_SIZES, LEVELS } from "@/constants/areas";
 import GolfCourseCard from "@/components/GolfCourseCard";
+import type { GolfCourse } from "@/types/golf-course";
 
 // ラベルを取得するヘルパー関数
 function getAreaLabel(code: string) {
@@ -30,7 +30,38 @@ function ResultContent() {
   const level = searchParams.get("level") ?? "";
   const date = searchParams.get("date") ?? "";
 
-  const courses = filterCourses({ area, budget, level });
+  const [courses, setCourses] = useState<GolfCourse[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [source, setSource] = useState("");
+
+  // APIからデータ取得
+  useEffect(() => {
+    async function fetchCourses() {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (area) params.set("area", area);
+        if (budget) params.set("budget", budget);
+        if (level) params.set("level", level);
+        if (date) params.set("date", date);
+
+        const res = await fetch(`/api/golf-courses?${params.toString()}`);
+        const data = await res.json();
+
+        setCourses(data.courses ?? []);
+        setSource(data.source ?? "");
+      } catch {
+        // エラー時はモックデータにフォールバック
+        const { filterCourses } = await import("@/lib/mock-data");
+        setCourses(filterCourses({ area, budget, level }));
+        setSource("mock-error");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchCourses();
+  }, [area, budget, level, date]);
 
   // 診断条件を「条件タグ」として表示するリスト
   const conditions = [
@@ -47,7 +78,9 @@ function ResultContent() {
       <div className="text-center mb-8">
         <p className="text-golf-green text-sm font-semibold mb-1">診断結果</p>
         <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
-          あなたにおすすめのゴルフ場 {courses.length}件
+          {loading
+            ? "ゴルフ場を探しています..."
+            : `あなたにおすすめのゴルフ場 ${courses.length}件`}
         </h1>
       </div>
 
@@ -74,12 +107,44 @@ function ResultContent() {
         </div>
       )}
 
+      {/* ローディング */}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-16">
+          <div className="w-10 h-10 border-4 border-green-200 border-t-golf-green rounded-full animate-spin mb-4" />
+          <p className="text-gray-400 text-sm">楽天GORAからデータを取得中...</p>
+        </div>
+      )}
+
       {/* ゴルフ場カード一覧 */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {courses.map((course, index) => (
-          <GolfCourseCard key={course.id} course={course} rank={index + 1} />
-        ))}
-      </div>
+      {!loading && (
+        <div className="grid md:grid-cols-2 gap-6">
+          {courses.map((course, index) => (
+            <GolfCourseCard key={course.id} course={course} rank={index + 1} />
+          ))}
+        </div>
+      )}
+
+      {/* 0件の場合 */}
+      {!loading && courses.length === 0 && (
+        <div className="text-center py-16">
+          <p className="text-4xl mb-4">⛳</p>
+          <p className="text-gray-500 mb-2">条件に合うゴルフ場が見つかりませんでした</p>
+          <p className="text-gray-400 text-sm">条件を変更して再度お試しください</p>
+        </div>
+      )}
+
+      {/* データソース表示（デバッグ用、後で消してOK） */}
+      {!loading && source && (
+        <div className="mt-4 text-center">
+          <span className="text-xs text-gray-300">
+            {source === "rakuten" && "楽天GORA APIから取得"}
+            {source === "rakuten-plan" && "楽天GORA プラン検索から取得"}
+            {source === "mock" && "モックデータを表示中（APIキー未設定）"}
+            {source === "mock-fallback" && "API接続エラーのためモックデータを表示中"}
+            {source === "mock-error" && "データ取得に失敗しました"}
+          </span>
+        </div>
+      )}
 
       {/* 下部CTA */}
       <div className="mt-12 text-center">
