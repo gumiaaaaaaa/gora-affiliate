@@ -13,3 +13,19 @@
     background: linear-gradient(135deg, #1a6b3c 0%, #0f4024 100%);
   }
 }
+
+/* スムーズスクロール */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 日付入力のスタイル改善 */
+input[type="date"] {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* フォーカスリング */
+*:focus-visible {
+  @apply outline-2 outline-offset-2 outline-golf-green;
+}

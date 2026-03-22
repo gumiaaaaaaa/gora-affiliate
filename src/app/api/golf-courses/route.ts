@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchGolfCourses, searchPlans } from "@/lib/rakuten-api";
 import { filterCourses } from "@/lib/mock-data";
+import type { GolfCourse } from "@/types/golf-course";
 
 // 内部エリアコード → 楽天エリアコード
 const AREA_TO_RAKUTEN: Record<string, number> = {
@@ -23,6 +24,49 @@ const BUDGET_TO_RANGE: Record<string, { min?: number; max?: number }> = {
   "12000to18000": { min: 12000, max: 18000 },
   over18000: { min: 18000 },
 };
+
+// おすすめ理由を自動生成
+function generateRecommendReason(
+  course: GolfCourse,
+  level: string,
+  budget: string
+): string {
+  const reasons: string[] = [];
+
+  // 評価に基づく理由
+  if (course.rating >= 4.5) {
+    reasons.push("口コミ評価が非常に高い人気コース");
+  } else if (course.rating >= 4.0) {
+    reasons.push("安定した高評価のコース");
+  }
+
+  // レベルに応じた理由
+  if (level === "beginner") {
+    if (course.minPrice < 8000) {
+      reasons.push("初心者にも手頃な価格で気軽にプレーできます");
+    } else {
+      reasons.push("初めてでも楽しめる環境が整っています");
+    }
+  } else if (level === "advanced") {
+    if (course.minPrice >= 15000) {
+      reasons.push("上級者も満足の本格的なコース設計");
+    } else {
+      reasons.push("実力を試せる戦略的なレイアウト");
+    }
+  }
+
+  // 予算に応じた理由
+  if (budget === "under8000" && course.minPrice < 8000) {
+    reasons.push("リーズナブルな料金でコスパ抜群");
+  }
+
+  // ホール数
+  if (course.holes >= 27) {
+    reasons.push(`${course.holes}ホールで飽きのこないプレーが楽しめます`);
+  }
+
+  return reasons.slice(0, 2).join("。") + (reasons.length > 0 ? "。" : "");
+}
 
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
@@ -51,8 +95,14 @@ export async function GET(request: NextRequest) {
         hits: 20,
       });
 
+      // おすすめ理由を付与
+      const coursesWithReason = result.courses.map((c) => ({
+        ...c,
+        recommend_reason: c.recommend_reason || generateRecommendReason(c, level, budget),
+      }));
+
       return NextResponse.json({
-        courses: result.courses,
+        courses: coursesWithReason,
         totalCount: result.totalCount,
         source: "rakuten-plan",
       });
@@ -77,21 +127,25 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // レベルでフィルタリング
+    // レベルでフィルタリング・ソート
     if (level === "beginner") {
-      // 初心者 = 評価が高く、コスパの良いコース優先
       courses.sort((a, b) => {
-        const aScore = a.rating - (a.minPrice / 10000);
-        const bScore = b.rating - (b.minPrice / 10000);
+        const aScore = a.rating - a.minPrice / 10000;
+        const bScore = b.rating - b.minPrice / 10000;
         return bScore - aScore;
       });
     } else if (level === "advanced") {
-      // 上級者 = 評価順
       courses.sort((a, b) => b.rating - a.rating);
     }
 
+    // おすすめ理由を付与
+    const coursesWithReason = courses.map((c) => ({
+      ...c,
+      recommend_reason: generateRecommendReason(c, level, budget),
+    }));
+
     return NextResponse.json({
-      courses,
+      courses: coursesWithReason,
       totalCount: result.totalCount,
       source: "rakuten",
     });
