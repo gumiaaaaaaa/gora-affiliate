@@ -22,17 +22,22 @@ const BUDGET_TO_RANGE: Record<string, { min?: number; max?: number }> = {
   over18000: { min: 18000 },
 };
 
-// サブエリアのキーワード取得
-function getSubAreaKeywords(area: string, subArea: string): string[] {
+// サブエリアのキーワード取得（複数サブエリア対応）
+function getSubAreaKeywords(area: string, subAreaParam: string): string[] {
   const subs = SUB_AREAS[area as AreaCode] ?? [];
-  const sub = subs.find((s) => s.code === subArea);
-  return sub?.keywords ?? [];
+  const codes = subAreaParam.split(",").filter(Boolean);
+  const keywords: string[] = [];
+  for (const code of codes) {
+    const sub = subs.find((s) => s.code === code);
+    if (sub) keywords.push(...sub.keywords);
+  }
+  return keywords;
 }
 
 // サブエリアで住所フィルタ
-function filterBySubArea(courses: GolfCourse[], area: string, subArea: string): GolfCourse[] {
-  if (!subArea) return courses;
-  const keywords = getSubAreaKeywords(area, subArea);
+function filterBySubArea(courses: GolfCourse[], area: string, subAreaParam: string): GolfCourse[] {
+  if (!subAreaParam) return courses;
+  const keywords = getSubAreaKeywords(area, subAreaParam);
   if (keywords.length === 0) return courses;
 
   return courses.filter((c) =>

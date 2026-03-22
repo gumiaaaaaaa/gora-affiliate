@@ -18,9 +18,15 @@ const BUDGET_TO_RANGE: Record<string, { min?: number; max?: number }> = {
   over18000: { min: 18000 },
 };
 
-function getSubAreaKeywords(area: string, subArea: string): string[] {
+function getSubAreaKeywords(area: string, subAreaParam: string): string[] {
   const subs = SUB_AREAS[area as AreaCode] ?? [];
-  return subs.find((s) => s.code === subArea)?.keywords ?? [];
+  const codes = subAreaParam.split(",").filter(Boolean);
+  const keywords: string[] = [];
+  for (const code of codes) {
+    const sub = subs.find((s) => s.code === code);
+    if (sub) keywords.push(...sub.keywords);
+  }
+  return keywords;
 }
 
 export async function GET(request: NextRequest) {

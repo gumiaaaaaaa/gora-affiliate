@@ -22,7 +22,7 @@ const AREA_ICONS: Record<string, string> = {
 
 type FormState = {
   area: AreaCode | "";
-  subArea: string;
+  subAreas: string[];
   budget: BudgetRange | "";
   groupSize: GroupSize | "";
   level: Level | "";
@@ -38,7 +38,7 @@ function SearchForm() {
 
   const [form, setForm] = useState<FormState>({
     area: (searchParams.get("area") as AreaCode) || "",
-    subArea: searchParams.get("subArea") || "",
+    subAreas: searchParams.get("subArea")?.split(",").filter(Boolean) || [],
     budget: (searchParams.get("budget") as BudgetRange) || "",
     groupSize: (searchParams.get("groupSize") as GroupSize) || "",
     level: (searchParams.get("level") as Level) || "",
@@ -53,7 +53,7 @@ function SearchForm() {
   // リアルタイム件数
   const { count: matchCount, loading: countLoading } = useMatchCount({
     area: form.area,
-    subArea: form.subArea,
+    subArea: form.subAreas.join(","),
     budget: form.budget,
     date: form.date,
     round: form.round,
@@ -62,7 +62,7 @@ function SearchForm() {
 
   // エリア変更→サブエリアリセット
   useEffect(() => {
-    setForm((prev) => ({ ...prev, subArea: "" }));
+    setForm((prev) => ({ ...prev, subAreas: [] }));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.area]);
 
@@ -81,7 +81,7 @@ function SearchForm() {
     if (!form.area) return;
     const params = new URLSearchParams();
     params.set("area", form.area);
-    if (form.subArea) params.set("subArea", form.subArea);
+    if (form.subAreas.length > 0) params.set("subArea", form.subAreas.join(","));
     if (form.budget) params.set("budget", form.budget);
     if (form.groupSize) params.set("groupSize", form.groupSize);
     if (form.level) params.set("level", form.level);
@@ -138,12 +138,12 @@ function SearchForm() {
           </div>
           {subAreas.length > 0 && (
             <div className="mt-3">
-              <p className="text-xs text-gray-400 mb-2">エリアを絞り込む（任意）</p>
+              <p className="text-xs text-gray-400 mb-2">エリアを絞り込む（複数選択OK）</p>
               <div className="flex flex-wrap gap-2">
                 <button
-                  onClick={() => setForm((prev) => ({ ...prev, subArea: "" }))}
+                  onClick={() => setForm((prev) => ({ ...prev, subAreas: [] }))}
                   className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                    !form.subArea ? "border-golf-green bg-green-50 text-golf-green" : "border-gray-200 text-gray-500"
+                    form.subAreas.length === 0 ? "border-golf-green bg-green-50 text-golf-green" : "border-gray-200 text-gray-500"
                   }`}
                 >
                   すべて
@@ -152,10 +152,13 @@ function SearchForm() {
                   <button
                     key={sub.code}
                     onClick={() => setForm((prev) => ({
-                      ...prev, subArea: prev.subArea === sub.code ? "" : sub.code,
+                      ...prev,
+                      subAreas: prev.subAreas.includes(sub.code)
+                        ? prev.subAreas.filter((s) => s !== sub.code)
+                        : [...prev.subAreas, sub.code],
                     }))}
                     className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
-                      form.subArea === sub.code ? "border-golf-green bg-green-50 text-golf-green" : "border-gray-200 text-gray-500"
+                      form.subAreas.includes(sub.code) ? "border-golf-green bg-green-50 text-golf-green" : "border-gray-200 text-gray-500"
                     }`}
                   >
                     {sub.name}
