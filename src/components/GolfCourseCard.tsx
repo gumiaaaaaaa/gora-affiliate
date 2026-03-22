@@ -169,12 +169,43 @@ export default function GolfCourseCard({ course, rank }: Props) {
           </a>
         </div>
 
-        {/* アコーディア/PGM公式アプリ案内 */}
-        {hasOfficialApp && (
-          <p className="text-[11px] text-orange-500 mt-2 text-center">
-            💡 {isAccordia ? "アコーディア" : "PGM"}系列：公式アプリの方が安い場合があります
-          </p>
-        )}
+        {/* 他サイトで比較 */}
+        <div className="mt-3 flex flex-col gap-1.5">
+          {/* じゃらんゴルフリンク */}
+          <a
+            href={`https://golf-jalan.net/search/?keyword=${encodeURIComponent(course.name.replace(/【.*】/g, "").trim())}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between text-[11px] text-gray-400 hover:text-orange-500 transition-colors px-1"
+          >
+            <span>🔍 じゃらんゴルフでも料金を比較</span>
+            <span>›</span>
+          </a>
+
+          {/* アコーディア/PGM公式 */}
+          {isAccordia && (
+            <a
+              href={`https://reserve.accordiagolf.com/golfCourse/?keyword=${encodeURIComponent(course.name.replace(/【.*】/g, "").trim())}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between text-[11px] text-orange-500 font-medium px-1 hover:text-orange-600 transition-colors"
+            >
+              <span>💡 アコーディア公式（さらに安い場合あり）</span>
+              <span>›</span>
+            </a>
+          )}
+          {isPGM && (
+            <a
+              href="https://booking.pacificgolf.co.jp/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between text-[11px] text-orange-500 font-medium px-1 hover:text-orange-600 transition-colors"
+            >
+              <span>💡 PGM公式（さらに安い場合あり）</span>
+              <span>›</span>
+            </a>
+          )}
+        </div>
       </div>
     </div>
   );
