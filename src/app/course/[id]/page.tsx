@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import ShareButtons from "@/components/ShareButtons";
 import PriceWatchForm from "@/components/PriceWatchForm";
 import CoursePlanList from "@/components/CoursePlanList";
+import PriceComparison from "@/components/PriceComparison";
 
 // ゴルフ場詳細データ取得
 async function getCourseDetail(id: string) {
@@ -303,6 +304,13 @@ export default async function CourseDetailPage({
             楽天GORAで予約する →
           </a>
         )}
+
+        {/* サイト別最安値比較 */}
+        <PriceComparison
+          courseId={id}
+          rakutenPrice={weekdayMin || holidayMin || 0}
+          rakutenUrl={reserveUrl}
+        />
 
         {/* プラン一覧（日付選択付き） */}
         <CoursePlanList
