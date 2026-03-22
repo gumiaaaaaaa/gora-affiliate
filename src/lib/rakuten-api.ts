@@ -89,7 +89,24 @@ export async function searchGolfCourses(
   const data = await res.json();
 
   const courses: GolfCourse[] = (data.Items ?? []).map(
-    (item: RakutenGolfCourseItem) => mapToCourse(item)
+    (item: RakutenCourseSearchItem) => ({
+      id: String(item.golfCourseId),
+      name: item.golfCourseName ?? "",
+      nameKana: item.golfCourseNameKana ?? "",
+      areaCode: getInternalAreaCode(item.areaCode),
+      areaName: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
+      prefecture: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
+      address: item.address ?? "",
+      imageUrl: item.golfCourseImageUrl ?? "",
+      rating: item.evaluation ?? 0,
+      reviewCount: item.ratingCount ?? 0,
+      minPrice: item.weekdayMinPrice ?? item.holidayMinPrice ?? 0,
+      holes: item.holeCount ?? 18,
+      tags: generateTags(item.evaluation, item.weekdayMinPrice, item.holeCount, item.address),
+      description: item.golfCourseCaption ?? "",
+      rakutenUrl: item.reserveCalUrl ?? item.golfCourseDetailUrl ?? "",
+      recommend_reason: "",
+    })
   );
 
   return {
@@ -99,7 +116,7 @@ export async function searchGolfCourses(
   };
 }
 
-// ===== プラン検索（予算フィルタ用） =====
+// ===== プラン検索（日付・予算フィルタ用） =====
 
 type PlanSearchParams = {
   areaCode?: number;
@@ -141,8 +158,27 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
   // プラン検索のレスポンスからゴルフ場単位にまとめる
   const courseMap = new Map<string, GolfCourse>();
 
-  for (const item of data.Items ?? []) {
+  for (const item of (data.Items ?? []) as RakutenPlanSearchItem[]) {
     const courseId = String(item.golfCourseId);
+
+    // planInfoから最安プランを取得
+    const plans: PlanInfo[] = Array.isArray(item.planInfo)
+      ? item.planInfo
+      : item.planInfo
+      ? [item.planInfo]
+      : [];
+
+    // 最安値のプランを探す
+    let cheapestPrice = Infinity;
+    let cheapestPlanName = "";
+    for (const plan of plans) {
+      if (plan.price && plan.price < cheapestPrice) {
+        cheapestPrice = plan.price;
+        cheapestPlanName = plan.planName ?? "";
+      }
+    }
+    if (cheapestPrice === Infinity) cheapestPrice = 0;
+
     if (!courseMap.has(courseId)) {
       courseMap.set(courseId, {
         id: courseId,
@@ -150,22 +186,25 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
         nameKana: "",
         areaCode: getInternalAreaCode(item.areaCode),
         areaName: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
-        prefecture: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
+        prefecture: item.prefecture ?? AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
         address: item.address ?? "",
         imageUrl: item.golfCourseImageUrl ?? "",
         rating: item.evaluation ?? 0,
-        reviewCount: item.ratingCount ?? 0,
-        minPrice: item.price ?? 0,
+        reviewCount: item.ratingNum ?? 0,
+        minPrice: cheapestPrice,
         holes: 18,
-        tags: [],
+        tags: generateTags(item.evaluation, cheapestPrice, undefined, item.address),
         description: "",
-        rakutenUrl: item.reserveCalUrl ?? "",
-        recommend_reason: item.planName ?? "",
+        // reserveCalUrlPC がプラン検索での予約URL（アフィリエイトリンク付き）
+        rakutenUrl: item.reserveCalUrlPC ?? "",
+        recommend_reason: cheapestPlanName,
       });
     } else {
+      // 既に追加済みなら最安値を更新
       const existing = courseMap.get(courseId)!;
-      if (item.price && item.price < existing.minPrice) {
-        existing.minPrice = item.price;
+      if (cheapestPrice > 0 && cheapestPrice < existing.minPrice) {
+        existing.minPrice = cheapestPrice;
+        existing.recommend_reason = cheapestPlanName;
       }
     }
   }
@@ -179,54 +218,31 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
 
 // ===== ヘルパー関数 =====
 
-// APIレスポンス → GolfCourse型に変換
-function mapToCourse(item: RakutenGolfCourseItem): GolfCourse {
-  return {
-    id: String(item.golfCourseId),
-    name: item.golfCourseName ?? "",
-    nameKana: item.golfCourseNameKana ?? "",
-    areaCode: getInternalAreaCode(item.areaCode),
-    areaName: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
-    prefecture: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
-    address: item.address ?? "",
-    imageUrl: item.golfCourseImageUrl ?? "",
-    rating: item.evaluation ?? 0,
-    reviewCount: item.ratingCount ?? 0,
-    minPrice: item.weekdayMinPrice ?? item.holidayMinPrice ?? 0,
-    holes: item.holeCount ?? 18,
-    tags: generateTags(item),
-    description: item.golfCourseCaption ?? "",
-    // reserveCalUrl = 予約カレンダー直行（アフィリエイトリンク付き）
-    rakutenUrl: item.reserveCalUrl ?? item.golfCourseDetailUrl ?? "",
-    recommend_reason: "",
-  };
-}
-
-// 楽天のエリアコードを内部コードに変換
 function getInternalAreaCode(rakutenCode: number): string {
   const map: Record<number, string> = {
-    8: "ibaraki",
-    9: "tochigi",
-    10: "gunma",
-    11: "saitama",
-    12: "chiba",
-    13: "tokyo",
-    14: "kanagawa",
+    8: "ibaraki", 9: "tochigi", 10: "gunma",
+    11: "saitama", 12: "chiba", 13: "tokyo", 14: "kanagawa",
   };
   return map[rakutenCode] ?? "";
 }
 
-// レスポンスからタグを生成
-function generateTags(item: RakutenGolfCourseItem): string[] {
+// タグを生成
+function generateTags(
+  evaluation?: number,
+  minPrice?: number,
+  holeCount?: number,
+  address?: string
+): string[] {
   const tags: string[] = [];
-  if (item.evaluation && item.evaluation >= 4.5) tags.push("高評価");
-  if (item.evaluation && item.evaluation >= 4.0) tags.push("人気");
-  if (item.weekdayMinPrice && item.weekdayMinPrice < 8000) tags.push("コスパ良し");
-  if (item.weekdayMinPrice && item.weekdayMinPrice >= 15000) tags.push("名門");
-  if (item.holeCount && item.holeCount >= 27) tags.push("27H以上");
 
-  // 住所からサブエリアタグを生成
-  const addr = item.address ?? "";
+  if (evaluation && evaluation >= 4.5) tags.push("高評価");
+  if (evaluation && evaluation >= 4.0 && evaluation < 4.5) tags.push("人気");
+  if (minPrice && minPrice > 0 && minPrice < 8000) tags.push("コスパ良し");
+  if (minPrice && minPrice >= 15000) tags.push("名門");
+  if (holeCount && holeCount >= 27) tags.push("27H以上");
+
+  // 住所からサブエリアタグ
+  const addr = address ?? "";
   if (addr.includes("木更津") || addr.includes("君津") || addr.includes("富津")) {
     tags.push("内房・木更津");
   } else if (addr.includes("館山") || addr.includes("鴨川") || addr.includes("南房総")) {
@@ -240,8 +256,10 @@ function generateTags(item: RakutenGolfCourseItem): string[] {
   return tags;
 }
 
-// 楽天APIレスポンスの型
-type RakutenGolfCourseItem = {
+// ===== 型定義 =====
+
+// ゴルフ場検索APIのレスポンス
+type RakutenCourseSearchItem = {
   golfCourseId: number;
   golfCourseName?: string;
   golfCourseNameKana?: string;
@@ -256,6 +274,32 @@ type RakutenGolfCourseItem = {
   weekdayMinPrice?: number;
   holidayMinPrice?: number;
   holeCount?: number;
-  price?: number;
+};
+
+// プラン検索APIのレスポンス
+type RakutenPlanSearchItem = {
+  golfCourseId: number;
+  golfCourseName?: string;
+  golfCourseCaption?: string;
+  golfCourseImageUrl?: string;
+  areaCode: number;
+  prefecture?: string;
+  address?: string;
+  evaluation?: number;
+  ratingNum?: number;
+  reserveCalUrlPC?: string;
+  reserveCalUrlMobile?: string;
+  displayWeekdayMinPrice?: string;
+  planInfo?: PlanInfo | PlanInfo[];
+};
+
+// プラン情報
+type PlanInfo = {
+  planId?: number;
   planName?: string;
+  price?: number;
+  basePrice?: number;
+  round?: string;
+  cart?: number;
+  lunch?: number;
 };
