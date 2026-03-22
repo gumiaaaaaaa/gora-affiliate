@@ -28,24 +28,30 @@ export default function HomePage() {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
-            あなたにぴったりの
+            最安値のゴルフ場が
             <br />
-            ゴルフ場が見つかる
+            すぐに見つかる
           </h1>
           <p className="text-green-200 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
-            エリア・予算・プレースタイルを選ぶだけ。
+            エリア・日付を選ぶだけで、
             <br className="hidden sm:block" />
-            最適なゴルフ場をすぐにご提案します。
+            最安プランを比較できます。
           </p>
 
           {/* 簡易検索フォーム */}
           <QuickSearch />
 
-          <p className="text-center mt-4">
-            <Link href="/shindan" className="text-green-300/70 text-xs hover:text-white transition-colors underline underline-offset-2">
-              詳細な条件で検索する →
+          <div className="text-center mt-5">
+            <Link
+              href="/shindan"
+              className="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/30 text-white font-medium text-sm px-6 py-2.5 rounded-full hover:bg-white/25 transition-all"
+            >
+              予算・ラウンド数など詳細条件で探す
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+              </svg>
             </Link>
-          </p>
+          </div>
         </div>
       </section>
 
