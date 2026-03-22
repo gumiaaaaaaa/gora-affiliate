@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { searchGolfCourses, searchPlans } from "@/lib/rakuten-api";
 import { filterCourses } from "@/lib/mock-data";
 import { SUB_AREAS } from "@/constants/areas";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import type { GolfCourse } from "@/types/golf-course";
 import type { AreaCode } from "@/types/shindan";
 
@@ -89,6 +90,15 @@ function generateRecommendReason(
 }
 
 export async function GET(request: NextRequest) {
+  // レート制限: 1IPあたり60回/分
+  const ip = getClientIp(request);
+  if (!checkRateLimit(`courses:${ip}`, { maxRequests: 60, windowMs: 60000 })) {
+    return NextResponse.json(
+      { error: "リクエストが多すぎます", courses: [] },
+      { status: 429 }
+    );
+  }
+
   const params = request.nextUrl.searchParams;
   const area = params.get("area") ?? "";
   const subArea = params.get("subArea") ?? "";
@@ -192,8 +202,8 @@ export async function GET(request: NextRequest) {
       totalCount: courses.length,
       source: "rakuten",
     });
-  } catch (error) {
-    console.error("API エラー:", error);
+  } catch {
+    console.error("Golf course API error");
 
     const courses = filterCourses({ area, budget, level });
     return NextResponse.json({

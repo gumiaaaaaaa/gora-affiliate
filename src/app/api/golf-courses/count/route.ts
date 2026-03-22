@@ -4,6 +4,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchGolfCourses, searchPlans } from "@/lib/rakuten-api";
 import { SUB_AREAS } from "@/constants/areas";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import type { AreaCode } from "@/types/shindan";
 
 const AREA_TO_RAKUTEN: Record<string, number> = {
@@ -34,6 +35,11 @@ function getSubAreaKeywords(area: string, subAreaParam: string): string[] {
 }
 
 export async function GET(request: NextRequest) {
+  const ip = getClientIp(request);
+  if (!checkRateLimit(`count:${ip}`, { maxRequests: 120, windowMs: 60000 })) {
+    return NextResponse.json({ count: 0 }, { status: 429 });
+  }
+
   const params = request.nextUrl.searchParams;
   const area = params.get("area") ?? "";
   const subArea = params.get("subArea") ?? "";

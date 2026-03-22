@@ -121,15 +121,15 @@ export async function GET(request: NextRequest) {
             });
 
             notificationsSent++;
-          } catch (emailError) {
-            console.error(`Email send error for ${w.email}:`, emailError);
+          } catch {
+            console.error("Email send error for watcher:", w.id);
           }
         }
 
         // Rakuten API レート制限対策
         await new Promise((r) => setTimeout(r, 300));
-      } catch (apiError) {
-        console.error(`Price check error for course ${courseId}:`, apiError);
+      } catch {
+        console.error("Price check error for course:", courseId);
       }
     }
 
@@ -140,8 +140,8 @@ export async function GET(request: NextRequest) {
       notificationsSent,
       totalWatchers: watchers.length,
     });
-  } catch (error) {
-    console.error("Cron error:", error);
+  } catch {
+    console.error("Cron job failed");
     return NextResponse.json(
       { error: "Price check failed" },
       { status: 500 }
