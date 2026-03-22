@@ -3,6 +3,17 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
 
+// コースIDからエリアコードを推定（先頭2桁）
+// 08=茨城, 09=栃木, 10=群馬, 11=埼玉, 12=千葉, 13=東京, 14=神奈川
+function getAreaCodeFromCourseId(courseId: string): string | null {
+  const prefix = courseId.slice(0, 2);
+  const map: Record<string, string> = {
+    "08": "8", "09": "9", "10": "10",
+    "11": "11", "12": "12", "13": "13", "14": "14",
+  };
+  return map[prefix] ?? null;
+}
+
 export async function GET(request: NextRequest) {
   const ip = getClientIp(request);
   if (!checkRateLimit(`course-plans:${ip}`, { maxRequests: 30, windowMs: 60000 })) {
@@ -34,6 +45,10 @@ export async function GET(request: NextRequest) {
       hits: "30",
     });
     if (affiliateId) params.set("affiliateId", affiliateId);
+
+    // エリアコードを付与して検索精度を上げる
+    const areaCode = getAreaCodeFromCourseId(courseId);
+    if (areaCode) params.set("areaCode", areaCode);
 
     const url = `https://openapi.rakuten.co.jp/engine/api/Gora/GoraPlanSearch/20170623?${params}`;
     const res = await fetch(url, {
