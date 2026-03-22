@@ -21,6 +21,10 @@ const BUDGET_TO_RANGE: Record<string, { min?: number; max?: number }> = {
 function getSubAreaKeywords(area: string, subAreaParam: string): string[] {
   const subs = SUB_AREAS[area as AreaCode] ?? [];
   const codes = subAreaParam.split(",").filter(Boolean);
+
+  // 全サブエリア選択時はフィルタしない
+  if (codes.length >= subs.length) return [];
+
   const keywords: string[] = [];
   for (const code of codes) {
     const sub = subs.find((s) => s.code === code);
@@ -74,9 +78,10 @@ export async function GET(request: NextRequest) {
       if (subArea) {
         const keywords = getSubAreaKeywords(area, subArea);
         if (keywords.length > 0) {
-          count = result.courses.filter((c) =>
-            keywords.some((kw) => c.address.includes(kw))
-          ).length;
+          count = result.courses.filter((c) => {
+            const searchText = `${c.address} ${c.name} ${c.description}`;
+            return keywords.some((kw) => searchText.includes(kw));
+          }).length;
         }
       }
 
@@ -95,9 +100,10 @@ export async function GET(request: NextRequest) {
     if (subArea) {
       const keywords = getSubAreaKeywords(area, subArea);
       if (keywords.length > 0) {
-        courses = courses.filter((c) =>
-          keywords.some((kw) => c.address.includes(kw))
-        );
+        courses = courses.filter((c) => {
+          const searchText = `${c.address} ${c.name} ${c.description}`;
+          return keywords.some((kw) => searchText.includes(kw));
+        });
       }
     }
 

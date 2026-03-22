@@ -26,6 +26,10 @@ const BUDGET_TO_RANGE: Record<string, { min?: number; max?: number }> = {
 function getSubAreaKeywords(area: string, subAreaParam: string): string[] {
   const subs = SUB_AREAS[area as AreaCode] ?? [];
   const codes = subAreaParam.split(",").filter(Boolean);
+
+  // 全サブエリアが選択されている場合はフィルタしない
+  if (codes.length >= subs.length) return [];
+
   const keywords: string[] = [];
   for (const code of codes) {
     const sub = subs.find((s) => s.code === code);
@@ -34,15 +38,17 @@ function getSubAreaKeywords(area: string, subAreaParam: string): string[] {
   return keywords;
 }
 
-// サブエリアで住所フィルタ
+// サブエリアでフィルタ（住所・コース名・説明文を検索）
 function filterBySubArea(courses: GolfCourse[], area: string, subAreaParam: string): GolfCourse[] {
   if (!subAreaParam) return courses;
   const keywords = getSubAreaKeywords(area, subAreaParam);
   if (keywords.length === 0) return courses;
 
-  return courses.filter((c) =>
-    keywords.some((kw) => c.address.includes(kw))
-  );
+  return courses.filter((c) => {
+    // 住所、コース名、説明文のいずれかにキーワードが含まれればマッチ
+    const searchText = `${c.address} ${c.name} ${c.description}`;
+    return keywords.some((kw) => searchText.includes(kw));
+  });
 }
 
 // おすすめ理由を自動生成
