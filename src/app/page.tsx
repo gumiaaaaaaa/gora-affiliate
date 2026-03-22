@@ -19,7 +19,7 @@ export default function HomePage() {
       {/* ヒーロー */}
       <section className="text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/images/hero-golf.jpg')" }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-golf-dark/80 via-golf-dark/70 to-golf-dark/90" />
+        <div className="absolute inset-0 bg-gradient-to-b from-golf-dark/60 via-golf-dark/50 to-golf-dark/70" />
         <div className="max-w-4xl mx-auto px-4 py-24 md:py-32 text-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm text-green-200 mb-6">
             <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
@@ -179,7 +179,7 @@ export default function HomePage() {
       {/* CTA */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/images/cta-golf.jpg')" }} />
-        <div className="absolute inset-0 bg-golf-dark/80" />
+        <div className="absolute inset-0 bg-golf-dark/60" />
         <div className="max-w-2xl mx-auto px-4 text-center py-24 relative z-10">
           <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             さっそく探してみましょう
