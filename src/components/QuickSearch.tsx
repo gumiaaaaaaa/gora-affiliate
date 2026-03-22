@@ -1,0 +1,128 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { AREAS, SUB_AREAS } from "@/constants/areas";
+import { useMatchCount } from "@/hooks/useMatchCount";
+import type { AreaCode } from "@/types/shindan";
+
+export default function QuickSearch() {
+  const router = useRouter();
+  const [date, setDate] = useState("");
+  const [area, setArea] = useState("");
+  const [subArea, setSubArea] = useState("");
+
+  const subAreas = area ? SUB_AREAS[area as AreaCode] ?? [] : [];
+
+  // エリア変更→サブエリアリセット
+  useEffect(() => {
+    setSubArea("");
+  }, [area]);
+
+  // リアルタイム件数
+  const { count, loading } = useMatchCount({
+    area,
+    subArea,
+    budget: "",
+    date,
+  });
+
+  function handleSearch() {
+    const params = new URLSearchParams();
+    if (area) params.set("area", area);
+    if (subArea) params.set("subArea", subArea);
+    if (date) params.set("date", date);
+    router.push(`/shindan/result?${params.toString()}`);
+  }
+
+  return (
+    <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-5 md:p-6 max-w-2xl mx-auto">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+        {/* 日付 */}
+        <div>
+          <label className="block text-xs text-green-200 mb-1.5 font-medium">📅 プレー日</label>
+          <input
+            type="date"
+            value={date}
+            min={new Date().toISOString().split("T")[0]}
+            onChange={(e) => setDate(e.target.value)}
+            className="w-full bg-white/95 border-0 rounded-xl py-3 px-4 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-white/50"
+          />
+        </div>
+
+        {/* エリア */}
+        <div>
+          <label className="block text-xs text-green-200 mb-1.5 font-medium">📍 エリア</label>
+          <select
+            value={area}
+            onChange={(e) => setArea(e.target.value)}
+            className="w-full bg-white/95 border-0 rounded-xl py-3 px-4 text-gray-700 text-sm focus:outline-none focus:ring-2 focus:ring-white/50 appearance-none"
+          >
+            <option value="">都道府県を選択</option>
+            {AREAS.map((a) => (
+              <option key={a.code} value={a.code}>{a.name}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {/* サブエリア */}
+      {subAreas.length > 0 && (
+        <div className="mb-3">
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              onClick={() => setSubArea("")}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                !subArea
+                  ? "bg-white text-golf-green"
+                  : "bg-white/20 text-white hover:bg-white/30"
+              }`}
+            >
+              すべて
+            </button>
+            {subAreas.map((sub) => (
+              <button
+                key={sub.code}
+                onClick={() => setSubArea(subArea === sub.code ? "" : sub.code)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                  subArea === sub.code
+                    ? "bg-white text-golf-green"
+                    : "bg-white/20 text-white hover:bg-white/30"
+                }`}
+              >
+                {sub.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 件数 + 検索ボタン */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleSearch}
+          disabled={!area}
+          className={`flex-1 py-3.5 rounded-xl font-bold text-base transition-all ${
+            area
+              ? "bg-white text-golf-green hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+              : "bg-white/30 text-white/60 cursor-not-allowed"
+          }`}
+        >
+          {area && count !== null && count > 0 && !loading
+            ? `${count}件のゴルフ場を見る`
+            : "ゴルフ場を検索"}
+          {loading && area && (
+            <span className="inline-block w-3 h-3 border-2 border-golf-green/30 border-t-golf-green rounded-full animate-spin ml-2 align-middle" />
+          )}
+        </button>
+      </div>
+
+      {/* 件数表示 */}
+      {area && !loading && count !== null && count >= 0 && (
+        <p className="text-center text-green-200/70 text-xs mt-2">
+          この条件に合うゴルフ場 <span className="font-bold text-white">{count}件</span>
+        </p>
+      )}
+    </div>
+  );
+}

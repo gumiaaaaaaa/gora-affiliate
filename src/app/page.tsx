@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AREAS } from "@/constants/areas";
 import HeroSlider from "@/components/HeroSlider";
+import QuickSearch from "@/components/QuickSearch";
 
 const PURPOSES = [
   { icon: "🌱", label: "初心者向け", description: "フラットで回りやすいコース", query: "level=beginner" },
@@ -31,26 +32,19 @@ export default function HomePage() {
             <br />
             ゴルフ場が見つかる
           </h1>
-          <p className="text-green-200 text-lg mb-10 max-w-lg mx-auto leading-relaxed">
+          <p className="text-green-200 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
             エリア・予算・プレースタイルを選ぶだけ。
             <br className="hidden sm:block" />
             最適なゴルフ場をすぐにご提案します。
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              href="/shindan"
-              className="inline-flex items-center justify-center bg-white text-golf-green font-bold text-base px-8 py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-            >
-              ゴルフ場を探す
-              <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-              </svg>
-            </Link>
-          </div>
+          {/* 簡易検索フォーム */}
+          <QuickSearch />
 
-          <p className="text-green-300/60 text-xs mt-5">
-            登録不要 · 無料 · 約3分で完了
+          <p className="text-center mt-4">
+            <Link href="/shindan" className="text-green-300/70 text-xs hover:text-white transition-colors underline underline-offset-2">
+              詳細な条件で検索する →
+            </Link>
           </p>
         </div>
       </section>
