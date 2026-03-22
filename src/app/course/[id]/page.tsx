@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import ShareButtons from "@/components/ShareButtons";
+import PriceWatchForm from "@/components/PriceWatchForm";
 
 // ゴルフ場詳細データ取得
 async function getCourseDetail(id: string) {
@@ -241,6 +242,13 @@ export default async function CourseDetailPage({
             </a>
           </div>
         )}
+
+        {/* 価格下落通知フォーム */}
+        <PriceWatchForm
+          courseId={id}
+          courseName={name}
+          currentPrice={weekdayMin || holidayMin || undefined}
+        />
 
         {/* シェアボタン */}
         <div className="flex justify-center my-6">

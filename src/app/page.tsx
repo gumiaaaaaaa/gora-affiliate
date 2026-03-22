@@ -136,7 +136,7 @@ export default function HomePage() {
             {
               step: "3",
               icon: "🔔",
-              title: "価格下落通知（準備中）",
+              title: "価格下落通知",
               desc: "気になるゴルフ場の料金が下がったらメールでお知らせ。ベストタイミングで予約。",
             },
           ].map((f) => (
