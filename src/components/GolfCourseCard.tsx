@@ -2,6 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import type { GolfCourse } from "@/types/golf-course";
 
+function toJalanAffiliateUrl(keyword: string): string {
+  const originalUrl = `https://golf-jalan.net/search/?keyword=${encodeURIComponent(keyword)}`;
+  return `//ck.jp.ap.valuecommerce.com/servlet/referral?sid=3765885&pid=892570320&vc_url=${encodeURIComponent(originalUrl)}`;
+}
+
 type Props = {
   course: GolfCourse;
   rank?: number;
@@ -171,11 +176,11 @@ export default function GolfCourseCard({ course, rank }: Props) {
 
         {/* 他サイトで比較 */}
         <div className="mt-3 flex flex-col gap-1.5">
-          {/* じゃらんゴルフリンク */}
+          {/* じゃらんゴルフリンク（アフィリエイト） */}
           <a
-            href={`https://golf-jalan.net/search/?keyword=${encodeURIComponent(course.name.replace(/【.*】/g, "").trim())}`}
+            href={toJalanAffiliateUrl(course.name.replace(/【.*】/g, "").trim())}
             target="_blank"
-            rel="noopener noreferrer"
+            rel="nofollow"
             className="flex items-center justify-between text-[11px] text-gray-400 hover:text-orange-500 transition-colors px-1"
           >
             <span>🔍 じゃらんゴルフでも料金を比較</span>

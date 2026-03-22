@@ -25,6 +25,11 @@ const SITE_LABELS: Record<string, string> = {
   pgm: "PGM",
 };
 
+// じゃらんのURLをバリューコマースアフィリエイトリンクに変換
+function toJalanAffiliateUrl(originalUrl: string): string {
+  return `//ck.jp.ap.valuecommerce.com/servlet/referral?sid=3765885&pid=892570320&vc_url=${encodeURIComponent(originalUrl)}`;
+}
+
 export default function PriceComparison({
   courseId,
   courseName,
@@ -87,10 +92,9 @@ export default function PriceComparison({
           return (
             <a
               key={item.site}
-              href={item.reserveUrl}
+              href={item.site === "jalan" ? toJalanAffiliateUrl(item.reserveUrl) : item.reserveUrl}
               target="_blank"
-              rel="noopener noreferrer"
-              {...(item.site === "jalan" ? { "data-vc-lc": "true" } : {})}
+              rel={item.site === "jalan" ? "nofollow" : "noopener noreferrer"}
               className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors group"
             >
               <div className="flex-1 min-w-0">
