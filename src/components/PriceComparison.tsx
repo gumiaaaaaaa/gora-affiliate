@@ -26,8 +26,12 @@ const SITE_LABELS: Record<string, string> = {
 };
 
 // じゃらんのURLをバリューコマースアフィリエイトリンクに変換
+// TODO: バリューコマース審査通過後に有効化
+// function toJalanAffiliateUrl(originalUrl: string): string {
+//   return `//ck.jp.ap.valuecommerce.com/servlet/referral?sid=3765885&pid=892570320&vc_url=${encodeURIComponent(originalUrl)}`;
+// }
 function toJalanAffiliateUrl(originalUrl: string): string {
-  return `//ck.jp.ap.valuecommerce.com/servlet/referral?sid=3765885&pid=892570320&vc_url=${encodeURIComponent(originalUrl)}`;
+  return originalUrl; // 審査通過まで通常リンク
 }
 
 export default function PriceComparison({
