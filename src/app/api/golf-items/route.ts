@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
 
-// ゴルフ用品のカテゴリ（全カテゴリから2件ずつ取得）
-const CATEGORIES = [
+// ゴルフ用品のカテゴリ
+export const GOLF_ITEM_GOLF_ITEM_CATEGORIES = [
   { keyword: "ゴルフボール", label: "ボール" },
   { keyword: "ゴルフクラブ ドライバー", label: "ドライバー" },
   { keyword: "ゴルフクラブ アイアンセット", label: "アイアン" },
@@ -15,7 +15,9 @@ const CATEGORIES = [
   { keyword: "ゴルフ 距離計 レーザー", label: "距離計" },
 ];
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const categoryFilter = searchParams.get("category") ?? "";
   const appId = process.env.RAKUTEN_APP_ID;
   const accessKey = process.env.RAKUTEN_ACCESS_KEY;
   const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
@@ -25,7 +27,10 @@ export async function GET() {
   }
 
   try {
-    // 全カテゴリから1件ずつ取得して10件にまとめる
+    // カテゴリ指定がある場合はそのカテゴリのみ、なければ全カテゴリから取得
+    const targetCategories = categoryFilter
+      ? GOLF_ITEM_CATEGORIES.filter((c) => c.label === categoryFilter)
+      : GOLF_ITEM_CATEGORIES;
     const allItems: {
       rank: number;
       name: string;
@@ -39,8 +44,10 @@ export async function GET() {
     }[] = [];
 
     // 並列で全カテゴリ取得
+    const hitsPerCategory = categoryFilter ? "10" : "2";
+
     const results = await Promise.allSettled(
-      CATEGORIES.map(async (cat) => {
+      targetCategories.map(async (cat) => {
         const params = new URLSearchParams({
           format: "json",
           formatVersion: "2",
@@ -48,7 +55,7 @@ export async function GET() {
           accessKey: accessKey,
           keyword: cat.keyword,
           sort: "-reviewCount",
-          hits: "2",
+          hits: hitsPerCategory,
         });
         if (affiliateId) params.set("affiliateId", affiliateId);
 
@@ -60,7 +67,8 @@ export async function GET() {
 
         if (!res.ok) return [];
         const data = await res.json();
-        return (data.Items ?? []).slice(0, 1).map((item: Record<string, unknown>) => ({
+        const limit = categoryFilter ? 10 : 1;
+        return (data.Items ?? []).slice(0, limit).map((item: Record<string, unknown>) => ({
           name: (item.itemName as string)?.slice(0, 60) ?? "",
           price: item.itemPrice as number,
           imageUrl: ((item.mediumImageUrls as string[]) ?? [])[0] ?? "",
