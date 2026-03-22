@@ -29,5 +29,6 @@ export type GolfPlan = {
   caddie: boolean;
   twosome: boolean;    // 2サム保証
   twoBagFee: number;   // 2B割増料金（0=割増なし）
+  threeBagFee: number; // 3B割増料金（0=割増なし）
   reserveUrl: string;  // プラン直行予約URL
 };

@@ -212,6 +212,7 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
       caddie: p.caddie === 1,
       twosome: p.assu2sum === 1,
       twoBagFee: p.addFee2bFlag === 1 ? (p.addFee2b ?? 0) : 0,
+      threeBagFee: p.addFee3bFlag === 1 ? (p.addFee3b ?? 0) : 0,
       reserveUrl: p.callInfo?.reservePageUrlPC ?? "",
     }));
 

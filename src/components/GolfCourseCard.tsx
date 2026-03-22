@@ -121,9 +121,12 @@ export default function GolfCourseCard({ course, rank }: Props) {
                       {plan.caddie && <span className="text-[10px] text-gray-400">キャディ</span>}
                       {plan.twosome && <span className="text-[10px] text-green-600 font-semibold">2サム保証</span>}
                       {plan.twoBagFee > 0 ? (
-                        <span className="text-[10px] text-orange-500 font-semibold">2B割増+¥{plan.twoBagFee.toLocaleString()}</span>
+                        <span className="text-[10px] text-orange-500 font-semibold">2B+¥{plan.twoBagFee.toLocaleString()}</span>
                       ) : (
                         <span className="text-[10px] text-green-600 font-semibold">2B割増なし✅</span>
+                      )}
+                      {plan.threeBagFee > 0 && (
+                        <span className="text-[10px] text-orange-500 font-semibold">3B+¥{plan.threeBagFee.toLocaleString()}</span>
                       )}
                     </div>
                   </div>
