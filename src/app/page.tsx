@@ -17,8 +17,9 @@ export default function HomePage() {
   return (
     <div>
       {/* ヒーロー */}
-      <section className="golf-gradient text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djZoLTZWMzRoNnptMC0zMHY2aC02VjRoNnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50" />
+      <section className="text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/images/hero-golf.jpg')" }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-golf-dark/80 via-golf-dark/70 to-golf-dark/90" />
         <div className="max-w-4xl mx-auto px-4 py-24 md:py-32 text-center relative z-10">
           <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm text-green-200 mb-6">
             <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
@@ -176,19 +177,21 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="py-24">
-        <div className="max-w-2xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+      <section className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url('/images/cta-golf.jpg')" }} />
+        <div className="absolute inset-0 bg-golf-dark/80" />
+        <div className="max-w-2xl mx-auto px-4 text-center py-24 relative z-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
             さっそく探してみましょう
           </h2>
-          <p className="text-gray-500 mb-8 leading-relaxed">
+          <p className="text-green-200 mb-8 leading-relaxed">
             条件を選ぶだけで、あなたにぴったりの
             <br className="hidden sm:block" />
             ゴルフ場がすぐに見つかります
           </p>
           <Link
             href="/shindan"
-            className="inline-flex items-center justify-center bg-golf-green text-white font-bold text-base px-10 py-4 rounded-xl shadow-lg hover:shadow-xl hover:bg-golf-light hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+            className="inline-flex items-center justify-center bg-white text-golf-green font-bold text-base px-10 py-4 rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
           >
             ゴルフ場を探す
             <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
