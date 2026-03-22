@@ -2,6 +2,7 @@
 
 import { useState, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useMatchCount } from "@/hooks/useMatchCount";
 import {
   AREAS,
   SUB_AREAS,
@@ -50,9 +51,18 @@ function SearchForm() {
     playStyles: searchParams.get("playStyles")?.split(",").filter(Boolean) || [],
   });
 
+  // リアルタイム件数取得
+  const { count: matchCount, loading: countLoading } = useMatchCount({
+    area: form.area,
+    subArea: form.subArea,
+    budget: form.budget,
+    date: form.date,
+  });
+
   // エリアが変わったらサブエリアをリセット
   useEffect(() => {
     setForm((prev) => ({ ...prev, subArea: "" }));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.area]);
 
   // サブエリアの選択肢
@@ -317,8 +327,30 @@ function SearchForm() {
           </div>
         </div>
 
-        {/* ===== 検索ボタン ===== */}
+        {/* ===== 件数表示 + 検索ボタン ===== */}
         <div className="p-5 bg-gray-50 border-t border-gray-100">
+          {/* リアルタイム件数 */}
+          {form.area && (
+            <div className="text-center mb-3">
+              {countLoading ? (
+                <p className="text-sm text-gray-400">
+                  <span className="inline-block w-4 h-4 border-2 border-gray-300 border-t-golf-green rounded-full animate-spin align-middle mr-1" />
+                  件数を確認中...
+                </p>
+              ) : matchCount !== null && matchCount >= 0 ? (
+                <p className="text-sm">
+                  この条件に合うゴルフ場{" "}
+                  <span className="text-2xl font-bold text-golf-green">
+                    {matchCount}
+                  </span>
+                  <span className="text-gray-600"> 件</span>
+                </p>
+              ) : matchCount === -1 ? (
+                <p className="text-xs text-gray-400">件数の取得に失敗しました</p>
+              ) : null}
+            </div>
+          )}
+
           <button
             onClick={handleSearch}
             disabled={!form.area}
@@ -328,7 +360,9 @@ function SearchForm() {
                 : "bg-gray-300 cursor-not-allowed"
             }`}
           >
-            🔍 この条件で検索する
+            {form.area && matchCount !== null && matchCount > 0
+              ? `🔍 ${matchCount}件のゴルフ場を見る`
+              : "🔍 この条件で検索する"}
           </button>
           {!form.area && (
             <p className="text-center text-xs text-red-400 mt-2">
