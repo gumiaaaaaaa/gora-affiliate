@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 type Comparison = {
   site: string;
   siteName: string;
+  planName: string;
   minPrice: number;
   reserveUrl: string;
   scrapedAt: string;
@@ -52,6 +53,7 @@ export default function PriceComparison({
       ? [{
           site: "rakuten",
           siteName: "楽天GORA",
+          planName: "",
           minPrice: rakutenPrice,
           reserveUrl: rakutenUrl,
           scrapedAt: "",
@@ -86,18 +88,25 @@ export default function PriceComparison({
               rel="noopener noreferrer"
               className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors group"
             >
-              <div className="flex items-center gap-3">
-                {/* サイトバッジ */}
-                <span
-                  className={`${SITE_COLORS[item.site] ?? "bg-gray-500"} text-white text-[10px] font-bold px-2 py-1 rounded-md min-w-[72px] text-center`}
-                >
-                  {SITE_LABELS[item.site] ?? item.siteName}
-                </span>
-
-                {isCheapest && i === 0 && (
-                  <span className="text-[10px] bg-yellow-100 text-yellow-700 font-bold px-2 py-0.5 rounded-full">
-                    最安値
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  {/* サイトバッジ */}
+                  <span
+                    className={`${SITE_COLORS[item.site] ?? "bg-gray-500"} text-white text-[10px] font-bold px-2 py-1 rounded-md min-w-[72px] text-center flex-shrink-0`}
+                  >
+                    {SITE_LABELS[item.site] ?? item.siteName}
                   </span>
+
+                  {isCheapest && i === 0 && (
+                    <span className="text-[10px] bg-yellow-100 text-yellow-700 font-bold px-2 py-0.5 rounded-full flex-shrink-0">
+                      最安値
+                    </span>
+                  )}
+                </div>
+                {item.planName && (
+                  <p className="text-[11px] text-gray-400 truncate ml-1">
+                    {item.planName}
+                  </p>
                 )}
               </div>
 

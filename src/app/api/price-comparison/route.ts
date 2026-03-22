@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
     // 各サイトの最新の価格を取得
     const { data } = await supabase
       .from("price_comparison")
-      .select("site, site_name, min_price, reserve_url, scraped_at")
+      .select("site, site_name, plan_name, min_price, reserve_url, scraped_at")
       .eq("golf_course_id", courseId)
       .order("scraped_at", { ascending: false })
       .limit(10);
@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
       .map((row) => ({
         site: row.site,
         siteName: row.site_name,
+        planName: row.plan_name ?? "",
         minPrice: row.min_price,
         reserveUrl: row.reserve_url,
         scrapedAt: row.scraped_at,
