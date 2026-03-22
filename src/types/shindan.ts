@@ -12,11 +12,14 @@ export type GroupSize = "1" | "2" | "3" | "4plus";
 // レベル
 export type Level = "beginner" | "intermediate" | "advanced";
 
-// 診断パラメータ（URLのクエリストリングに使う）
-export type ShindanParams = {
+// 検索パラメータ（URLのクエリストリングに使う）
+export type SearchParams = {
   area: AreaCode;
-  budget: BudgetRange;
-  groupSize: GroupSize;
-  level: Level;
-  date: string; // "YYYY-MM-DD"
+  subArea?: string;
+  budget?: BudgetRange;
+  groupSize?: GroupSize;
+  level?: Level;
+  date?: string;
+  startTime?: string;
+  playStyles?: string[];
 };

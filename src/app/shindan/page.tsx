@@ -1,132 +1,202 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AREAS, BUDGET_RANGES, GROUP_SIZES, LEVELS } from "@/constants/areas";
+import {
+  AREAS,
+  SUB_AREAS,
+  BUDGET_RANGES,
+  GROUP_SIZES,
+  LEVELS,
+  START_TIMES,
+  PLAY_STYLES,
+} from "@/constants/areas";
 import type { AreaCode, BudgetRange, GroupSize, Level } from "@/types/shindan";
 
-// ステップの総数
-const TOTAL_STEPS = 5;
+// エリアアイコン
+const AREA_ICONS: Record<string, string> = {
+  tokyo: "🏙️",
+  chiba: "🌊",
+  saitama: "🌳",
+  kanagawa: "⛰️",
+  ibaraki: "🌾",
+  tochigi: "🗻",
+  gunma: "♨️",
+};
 
 type FormState = {
   area: AreaCode | "";
+  subArea: string;
   budget: BudgetRange | "";
   groupSize: GroupSize | "";
   level: Level | "";
   date: string;
+  startTime: string;
+  playStyles: string[];
 };
 
-function ShindanForm() {
+function SearchForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // URLパラメータから初期値を設定
-  const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>({
     area: (searchParams.get("area") as AreaCode) || "",
+    subArea: searchParams.get("subArea") || "",
     budget: (searchParams.get("budget") as BudgetRange) || "",
-    groupSize: "",
+    groupSize: (searchParams.get("groupSize") as GroupSize) || "",
     level: (searchParams.get("level") as Level) || "",
-    date: "",
+    date: searchParams.get("date") || "",
+    startTime: searchParams.get("startTime") || "",
+    playStyles: searchParams.get("playStyles")?.split(",").filter(Boolean) || [],
   });
 
-  const progress = (step / TOTAL_STEPS) * 100;
+  // エリアが変わったらサブエリアをリセット
+  useEffect(() => {
+    setForm((prev) => ({ ...prev, subArea: "" }));
+  }, [form.area]);
 
-  function handleNext() {
-    if (step < TOTAL_STEPS) {
-      setStep(step + 1);
-    } else {
-      // 結果ページへ
-      const params = new URLSearchParams({
-        area: form.area,
-        budget: form.budget,
-        groupSize: form.groupSize,
-        level: form.level,
-        date: form.date,
-      });
-      router.push(`/shindan/result?${params.toString()}`);
-    }
+  // サブエリアの選択肢
+  const subAreas = form.area ? SUB_AREAS[form.area] || [] : [];
+
+  // プレースタイルのトグル
+  function togglePlayStyle(code: string) {
+    setForm((prev) => ({
+      ...prev,
+      playStyles: prev.playStyles.includes(code)
+        ? prev.playStyles.filter((s) => s !== code)
+        : [...prev.playStyles, code],
+    }));
   }
 
-  function handleBack() {
-    if (step > 1) setStep(step - 1);
-  }
+  // 検索実行
+  function handleSearch() {
+    if (!form.area) return;
 
-  // 各ステップで選択済みか確認
-  function isCurrentStepComplete() {
-    if (step === 1) return form.area !== "";
-    if (step === 2) return form.budget !== "";
-    if (step === 3) return form.groupSize !== "";
-    if (step === 4) return form.level !== "";
-    if (step === 5) return form.date !== "";
-    return false;
+    const params = new URLSearchParams();
+    params.set("area", form.area);
+    if (form.subArea) params.set("subArea", form.subArea);
+    if (form.budget) params.set("budget", form.budget);
+    if (form.groupSize) params.set("groupSize", form.groupSize);
+    if (form.level) params.set("level", form.level);
+    if (form.date) params.set("date", form.date);
+    if (form.startTime) params.set("startTime", form.startTime);
+    if (form.playStyles.length > 0)
+      params.set("playStyles", form.playStyles.join(","));
+
+    router.push(`/shindan/result?${params.toString()}`);
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-10">
+    <div className="max-w-4xl mx-auto px-4 py-8">
       {/* ヘッダー */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-golf-green">⛳ かんたん診断</h1>
-        <p className="text-gray-500 text-sm mt-1">あなたにぴったりのゴルフ場を見つけます</p>
+        <h1 className="text-2xl font-bold text-golf-green">⛳ ゴルフ場検索</h1>
+        <p className="text-gray-500 text-sm mt-1">
+          条件を選んで、おすすめのゴルフ場を見つけましょう
+        </p>
       </div>
 
-      {/* プログレスバー */}
-      <div className="mb-8">
-        <div className="flex justify-between text-xs text-gray-400 mb-2">
-          <span>STEP {step} / {TOTAL_STEPS}</span>
-          <span>{Math.round(progress)}% 完了</span>
-        </div>
-        <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-golf-green rounded-full transition-all duration-500"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
-      </div>
+      <div className="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
+        {/* ===== エリア選択 ===== */}
+        <div className="p-5 border-b border-gray-100">
+          <label className="block text-sm font-bold text-gray-700 mb-3">
+            📍 エリア <span className="text-red-400 text-xs">必須</span>
+          </label>
+          <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+            {AREAS.map((area) => (
+              <button
+                key={area.code}
+                onClick={() =>
+                  setForm((prev) => ({
+                    ...prev,
+                    area: prev.area === area.code ? "" : area.code,
+                  }))
+                }
+                className={`flex flex-col items-center py-3 px-1 rounded-xl border-2 text-sm font-semibold transition-all ${
+                  form.area === area.code
+                    ? "border-golf-green bg-green-50 text-golf-green"
+                    : "border-gray-200 hover:border-green-300 text-gray-600"
+                }`}
+              >
+                <span className="text-xl mb-1">{AREA_ICONS[area.code]}</span>
+                <span>{area.name}</span>
+              </button>
+            ))}
+          </div>
 
-      {/* カード */}
-      <div className="bg-white rounded-2xl shadow-md p-6 md:p-8">
-        {/* Step 1: エリア */}
-        {step === 1 && (
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-1">
-              どのエリアでプレーしたいですか？
-            </h2>
-            <p className="text-gray-400 text-sm mb-6">都道府県を選んでください</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {AREAS.map((area) => (
+          {/* サブエリア */}
+          {subAreas.length > 0 && (
+            <div className="mt-3">
+              <p className="text-xs text-gray-400 mb-2">エリアを絞り込む（任意）</p>
+              <div className="flex flex-wrap gap-2">
                 <button
-                  key={area.code}
-                  onClick={() => setForm({ ...form, area: area.code })}
-                  className={`py-3 px-4 rounded-xl border-2 font-semibold transition-all ${
-                    form.area === area.code
+                  onClick={() => setForm((prev) => ({ ...prev, subArea: "" }))}
+                  className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                    form.subArea === ""
                       ? "border-golf-green bg-green-50 text-golf-green"
-                      : "border-gray-200 hover:border-green-300 text-gray-700"
+                      : "border-gray-200 text-gray-500 hover:border-green-300"
                   }`}
                 >
-                  {area.name}
+                  すべて
                 </button>
-              ))}
+                {subAreas.map((sub) => (
+                  <button
+                    key={sub.code}
+                    onClick={() =>
+                      setForm((prev) => ({
+                        ...prev,
+                        subArea: prev.subArea === sub.code ? "" : sub.code,
+                      }))
+                    }
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all ${
+                      form.subArea === sub.code
+                        ? "border-golf-green bg-green-50 text-golf-green"
+                        : "border-gray-200 text-gray-500 hover:border-green-300"
+                    }`}
+                  >
+                    {sub.name}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Step 2: 予算 */}
-        {step === 2 && (
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-1">
-              1人あたりの予算は？
-            </h2>
-            <p className="text-gray-400 text-sm mb-6">グリーンフィー込みの目安金額</p>
-            <div className="flex flex-col gap-3">
+        {/* ===== プレー日・予算 横並び ===== */}
+        <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+          {/* プレー日 */}
+          <div className="p-5">
+            <label className="block text-sm font-bold text-gray-700 mb-3">
+              📅 プレー日
+            </label>
+            <input
+              type="date"
+              value={form.date}
+              min={new Date().toISOString().split("T")[0]}
+              onChange={(e) => setForm({ ...form, date: e.target.value })}
+              className="w-full border-2 border-gray-200 rounded-xl py-3 px-4 text-gray-700 focus:outline-none focus:border-golf-green transition-colors"
+            />
+          </div>
+
+          {/* 予算 */}
+          <div className="p-5">
+            <label className="block text-sm font-bold text-gray-700 mb-3">
+              💰 プレー料金（1人あたり）
+            </label>
+            <div className="grid grid-cols-2 gap-2">
               {BUDGET_RANGES.map((b) => (
                 <button
                   key={b.code}
-                  onClick={() => setForm({ ...form, budget: b.code as BudgetRange })}
-                  className={`py-4 px-5 rounded-xl border-2 font-semibold text-left transition-all ${
+                  onClick={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      budget: prev.budget === b.code ? "" : b.code,
+                    }))
+                  }
+                  className={`py-2.5 px-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                     form.budget === b.code
                       ? "border-golf-green bg-green-50 text-golf-green"
-                      : "border-gray-200 hover:border-green-300 text-gray-700"
+                      : "border-gray-200 hover:border-green-300 text-gray-600"
                   }`}
                 >
                   {b.label}
@@ -134,24 +204,29 @@ function ShindanForm() {
               ))}
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Step 3: 人数 */}
-        {step === 3 && (
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-1">
-              何人でプレーしますか？
-            </h2>
-            <p className="text-gray-400 text-sm mb-6">同伴プレー人数を選んでください</p>
-            <div className="grid grid-cols-2 gap-3">
+        {/* ===== 人数・レベル 横並び ===== */}
+        <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100 border-t border-gray-100">
+          {/* 人数 */}
+          <div className="p-5">
+            <label className="block text-sm font-bold text-gray-700 mb-3">
+              👥 人数
+            </label>
+            <div className="grid grid-cols-2 gap-2">
               {GROUP_SIZES.map((g) => (
                 <button
                   key={g.code}
-                  onClick={() => setForm({ ...form, groupSize: g.code as GroupSize })}
-                  className={`py-4 px-5 rounded-xl border-2 font-semibold text-center transition-all ${
+                  onClick={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      groupSize: prev.groupSize === g.code ? "" : (g.code as GroupSize),
+                    }))
+                  }
+                  className={`py-2.5 px-3 rounded-xl border-2 text-sm font-semibold transition-all ${
                     form.groupSize === g.code
                       ? "border-golf-green bg-green-50 text-golf-green"
-                      : "border-gray-200 hover:border-green-300 text-gray-700"
+                      : "border-gray-200 hover:border-green-300 text-gray-600"
                   }`}
                 >
                   {g.label}
@@ -159,73 +234,108 @@ function ShindanForm() {
               ))}
             </div>
           </div>
-        )}
 
-        {/* Step 4: レベル */}
-        {step === 4 && (
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-1">
-              ゴルフのレベルは？
-            </h2>
-            <p className="text-gray-400 text-sm mb-6">自分に近いものを選んでください</p>
-            <div className="flex flex-col gap-3">
+          {/* レベル */}
+          <div className="p-5">
+            <label className="block text-sm font-bold text-gray-700 mb-3">
+              🏌️ レベル
+            </label>
+            <div className="flex flex-col gap-2">
               {LEVELS.map((l) => (
                 <button
                   key={l.code}
-                  onClick={() => setForm({ ...form, level: l.code as Level })}
-                  className={`py-4 px-5 rounded-xl border-2 text-left transition-all ${
+                  onClick={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      level: prev.level === l.code ? "" : (l.code as Level),
+                    }))
+                  }
+                  className={`py-2.5 px-4 rounded-xl border-2 text-left transition-all ${
                     form.level === l.code
                       ? "border-golf-green bg-green-50"
                       : "border-gray-200 hover:border-green-300"
                   }`}
                 >
-                  <div className="font-bold text-gray-800">{l.label}</div>
-                  <div className="text-sm text-gray-400 mt-0.5">{l.description}</div>
+                  <span className="font-semibold text-sm text-gray-700">
+                    {l.label}
+                  </span>
+                  <span className="text-xs text-gray-400 ml-2">
+                    {l.description}
+                  </span>
                 </button>
               ))}
             </div>
           </div>
-        )}
+        </div>
 
-        {/* Step 5: 日付 */}
-        {step === 5 && (
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-1">
-              プレー希望日は？
-            </h2>
-            <p className="text-gray-400 text-sm mb-6">大体でOKです</p>
-            <input
-              type="date"
-              value={form.date}
-              min={new Date().toISOString().split("T")[0]}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="w-full border-2 border-gray-200 rounded-xl py-4 px-5 text-gray-700 text-lg focus:outline-none focus:border-golf-green transition-colors"
-            />
+        {/* ===== スタート時間・プレースタイル ===== */}
+        <div className="border-t border-gray-100 p-5">
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* スタート時間 */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-3">
+                🕐 スタート時間
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                {START_TIMES.map((t) => (
+                  <button
+                    key={t.code}
+                    onClick={() => setForm({ ...form, startTime: t.code })}
+                    className={`py-2 px-3 rounded-xl border-2 text-sm font-semibold transition-all ${
+                      form.startTime === t.code
+                        ? "border-golf-green bg-green-50 text-golf-green"
+                        : "border-gray-200 hover:border-green-300 text-gray-600"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* プレースタイル */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-3">
+                ⛳ プレースタイル
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {PLAY_STYLES.map((s) => (
+                  <button
+                    key={s.code}
+                    onClick={() => togglePlayStyle(s.code)}
+                    className={`px-3 py-2 rounded-xl border-2 text-sm font-semibold transition-all ${
+                      form.playStyles.includes(s.code)
+                        ? "border-golf-green bg-green-50 text-golf-green"
+                        : "border-gray-200 hover:border-green-300 text-gray-600"
+                    }`}
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* ボタン */}
-      <div className="flex gap-3 mt-6">
-        {step > 1 && (
+        {/* ===== 検索ボタン ===== */}
+        <div className="p-5 bg-gray-50 border-t border-gray-100">
           <button
-            onClick={handleBack}
-            className="flex-1 py-3 border-2 border-gray-300 rounded-full font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+            onClick={handleSearch}
+            disabled={!form.area}
+            className={`w-full py-4 rounded-xl font-bold text-lg text-white transition-all ${
+              form.area
+                ? "bg-golf-green hover:bg-golf-light active:scale-[0.98] shadow-md"
+                : "bg-gray-300 cursor-not-allowed"
+            }`}
           >
-            ← 戻る
+            🔍 この条件で検索する
           </button>
-        )}
-        <button
-          onClick={handleNext}
-          disabled={!isCurrentStepComplete()}
-          className={`flex-[2] py-3 rounded-full font-bold text-white transition-all ${
-            isCurrentStepComplete()
-              ? "bg-golf-green hover:opacity-90 active:scale-95"
-              : "bg-gray-300 cursor-not-allowed"
-          }`}
-        >
-          {step === TOTAL_STEPS ? "おすすめを見る →" : "次へ →"}
-        </button>
+          {!form.area && (
+            <p className="text-center text-xs text-red-400 mt-2">
+              エリアを選択してください
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -240,7 +350,7 @@ export default function ShindanPage() {
         </div>
       }
     >
-      <ShindanForm />
+      <SearchForm />
     </Suspense>
   );
 }

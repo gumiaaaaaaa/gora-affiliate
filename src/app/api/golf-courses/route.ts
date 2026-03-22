@@ -1,20 +1,17 @@
 // ゴルフ場検索 API ルート
-// GET /api/golf-courses?area=chiba&budget=under8000&level=beginner&date=2026-04-01
+// GET /api/golf-courses?area=chiba&subArea=uchibo&budget=under8000&level=beginner&date=2026-04-01
 
 import { NextRequest, NextResponse } from "next/server";
 import { searchGolfCourses, searchPlans } from "@/lib/rakuten-api";
 import { filterCourses } from "@/lib/mock-data";
+import { SUB_AREAS } from "@/constants/areas";
 import type { GolfCourse } from "@/types/golf-course";
+import type { AreaCode } from "@/types/shindan";
 
 // 内部エリアコード → 楽天エリアコード
 const AREA_TO_RAKUTEN: Record<string, number> = {
-  tokyo: 13,
-  chiba: 12,
-  saitama: 11,
-  kanagawa: 14,
-  ibaraki: 8,
-  tochigi: 9,
-  gunma: 10,
+  tokyo: 13, chiba: 12, saitama: 11, kanagawa: 14,
+  ibaraki: 8, tochigi: 9, gunma: 10,
 };
 
 // 予算コード → 金額レンジ
@@ -24,6 +21,24 @@ const BUDGET_TO_RANGE: Record<string, { min?: number; max?: number }> = {
   "12000to18000": { min: 12000, max: 18000 },
   over18000: { min: 18000 },
 };
+
+// サブエリアのキーワード取得
+function getSubAreaKeywords(area: string, subArea: string): string[] {
+  const subs = SUB_AREAS[area as AreaCode] ?? [];
+  const sub = subs.find((s) => s.code === subArea);
+  return sub?.keywords ?? [];
+}
+
+// サブエリアで住所フィルタ
+function filterBySubArea(courses: GolfCourse[], area: string, subArea: string): GolfCourse[] {
+  if (!subArea) return courses;
+  const keywords = getSubAreaKeywords(area, subArea);
+  if (keywords.length === 0) return courses;
+
+  return courses.filter((c) =>
+    keywords.some((kw) => c.address.includes(kw))
+  );
+}
 
 // おすすめ理由を自動生成
 function generateRecommendReason(
@@ -65,6 +80,7 @@ function generateRecommendReason(
 export async function GET(request: NextRequest) {
   const params = request.nextUrl.searchParams;
   const area = params.get("area") ?? "";
+  const subArea = params.get("subArea") ?? "";
   const budget = params.get("budget") ?? "";
   const level = params.get("level") ?? "";
   const date = params.get("date") ?? "";
@@ -86,18 +102,22 @@ export async function GET(request: NextRequest) {
         playDate: date,
         minPrice: budgetRange.min,
         maxPrice: budgetRange.max,
-        hits: 20,
+        hits: 30,
       });
 
-      const coursesWithReason = result.courses.map((c) => ({
+      // サブエリアフィルタ
+      let courses = filterBySubArea(result.courses, area, subArea);
+
+      // おすすめ理由を付与
+      courses = courses.map((c) => ({
         ...c,
         recommend_reason:
           c.recommend_reason || generateRecommendReason(c, level, budget),
       }));
 
       return NextResponse.json({
-        courses: coursesWithReason,
-        totalCount: result.totalCount,
+        courses,
+        totalCount: courses.length,
         source: "rakuten-plan",
       });
     }
@@ -105,11 +125,13 @@ export async function GET(request: NextRequest) {
     // 日付なしの場合はゴルフ場検索
     const result = await searchGolfCourses({
       areaCode: rakutenAreaCode,
-      hits: 20,
+      hits: 30,
     });
 
+    // サブエリアフィルタ
+    let courses = filterBySubArea(result.courses, area, subArea);
+
     // 予算でフィルタリング
-    let courses = result.courses;
     if (budget) {
       const range = BUDGET_TO_RANGE[budget];
       if (range) {
@@ -133,14 +155,14 @@ export async function GET(request: NextRequest) {
     }
 
     // おすすめ理由を付与
-    const coursesWithReason = courses.map((c) => ({
+    courses = courses.map((c) => ({
       ...c,
       recommend_reason: generateRecommendReason(c, level, budget),
     }));
 
     return NextResponse.json({
-      courses: coursesWithReason,
-      totalCount: result.totalCount,
+      courses,
+      totalCount: courses.length,
       source: "rakuten",
     });
   } catch (error) {
