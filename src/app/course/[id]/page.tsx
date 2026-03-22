@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import ShareButtons from "@/components/ShareButtons";
 import PriceWatchForm from "@/components/PriceWatchForm";
 import CoursePlanList from "@/components/CoursePlanList";
-import PriceComparison from "@/components/PriceComparison";
+// PriceComparisonはCoursePlanListに統合済み
 
 // ゴルフ場詳細データ取得
 async function getCourseDetail(id: string) {
@@ -305,18 +305,10 @@ export default async function CourseDetailPage({
           </a>
         )}
 
-        {/* サイト別最安値比較 */}
-        <PriceComparison
-          courseId={id}
-          courseName={name}
-          rakutenPrice={weekdayMin || holidayMin || 0}
-          rakutenPlanName={weekdayMin > 0 ? `平日最安 ¥${weekdayMin.toLocaleString()}〜` : ""}
-          rakutenUrl={reserveUrl}
-        />
-
-        {/* プラン一覧（日付選択付き） */}
+        {/* プラン一覧 + サイト別比較（日付選択付き） */}
         <CoursePlanList
           courseId={id}
+          courseName={name}
           fallbackReserveUrl={reserveUrl}
         />
 
