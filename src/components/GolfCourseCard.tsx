@@ -30,9 +30,11 @@ export default function GolfCourseCard({ course, rank }: Props) {
           </div>
         )}
         {/* 料金バッジ */}
-        <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm text-golf-green font-bold text-lg px-3 py-1 rounded-lg shadow">
-          ¥{course.minPrice.toLocaleString()}〜
-        </div>
+        {course.minPrice > 0 && (
+          <div className="absolute bottom-3 right-3 bg-white/95 backdrop-blur-sm text-golf-green font-bold text-lg px-3 py-1 rounded-lg shadow">
+            ¥{course.minPrice.toLocaleString()}〜
+          </div>
+        )}
       </div>
 
       {/* コンテンツ */}
@@ -50,17 +52,21 @@ export default function GolfCourseCard({ course, rank }: Props) {
         </h3>
 
         {/* 評価 */}
-        <div className="flex items-center gap-1.5 mb-3">
-          <span className="text-yellow-400 text-sm tracking-tight">
-            {"★".repeat(stars)}{"☆".repeat(5 - stars)}
-          </span>
-          <span className="font-semibold text-sm text-gray-700">
-            {course.rating.toFixed(1)}
-          </span>
-          <span className="text-gray-400 text-xs">
-            ({course.reviewCount}件)
-          </span>
-        </div>
+        {course.rating > 0 && (
+          <div className="flex items-center gap-1.5 mb-3">
+            <span className="text-yellow-400 text-sm tracking-tight">
+              {"★".repeat(stars)}{"☆".repeat(5 - stars)}
+            </span>
+            <span className="font-semibold text-sm text-gray-700">
+              {course.rating.toFixed(1)}
+            </span>
+            {course.reviewCount > 0 && (
+              <span className="text-gray-400 text-xs">
+                ({course.reviewCount.toLocaleString()}件)
+              </span>
+            )}
+          </div>
+        )}
 
         {/* タグ */}
         {course.tags.length > 0 && (
