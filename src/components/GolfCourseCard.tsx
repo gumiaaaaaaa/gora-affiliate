@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import type { GolfCourse } from "@/types/golf-course";
 
@@ -83,14 +84,22 @@ export default function GolfCourseCard({ course, rank }: Props) {
         )}
 
         {/* ボタン */}
-        <a
-          href={course.rakutenUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="block w-full text-center bg-golf-green text-white font-bold py-3 rounded-xl hover:bg-golf-light active:scale-[0.98] transition-all duration-200 shadow-sm"
-        >
-          楽天GORAで予約する →
-        </a>
+        <div className="flex gap-2">
+          <Link
+            href={`/course/${course.id}`}
+            className="flex-1 text-center border-2 border-golf-green text-golf-green font-bold py-3 rounded-xl hover:bg-green-50 transition-all duration-200 text-sm"
+          >
+            詳細を見る
+          </Link>
+          <a
+            href={course.rakutenUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-[2] text-center bg-golf-green text-white font-bold py-3 rounded-xl hover:bg-golf-light active:scale-[0.98] transition-all duration-200 shadow-sm"
+          >
+            予約する →
+          </a>
+        </div>
       </div>
     </div>
   );

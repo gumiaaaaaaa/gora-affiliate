@@ -23,6 +23,7 @@ export default function Footer() {
             <Link href="/" className="hover:text-white transition-colors">トップページ</Link>
             <Link href="/shindan" className="hover:text-white transition-colors">かんたん診断</Link>
             <Link href="/privacy" className="hover:text-white transition-colors">プライバシーポリシー</Link>
+            <Link href="/tokushoho" className="hover:text-white transition-colors">特定商取引法に基づく表記</Link>
           </div>
         </div>
 
