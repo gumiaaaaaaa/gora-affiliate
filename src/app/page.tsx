@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AREAS } from "@/constants/areas";
 import HeroSlider from "@/components/HeroSlider";
 import QuickSearch from "@/components/QuickSearch";
+import GolfItemsCarousel from "@/components/GolfItemsCarousel";
 
 const PURPOSES = [
   { icon: "🌱", label: "初心者向け", description: "フラットで回りやすいコース", query: "level=beginner" },
@@ -175,6 +176,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ゴルフ用品ランキング */}
+      <GolfItemsCarousel />
 
       {/* CTA */}
       <section className="relative overflow-hidden">
