@@ -2,13 +2,17 @@ import { NextResponse } from "next/server";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
 
-// ゴルフ用品の検索キーワード（ローテーション）
-const KEYWORDS = [
-  "ゴルフクラブ",
-  "ゴルフボール",
-  "ゴルフウェア メンズ",
-  "ゴルフシューズ",
-  "ゴルフ グローブ",
+// ゴルフ用品のカテゴリ（全カテゴリから2件ずつ取得）
+const CATEGORIES = [
+  { keyword: "ゴルフボール", label: "ボール" },
+  { keyword: "ゴルフクラブ ドライバー", label: "ドライバー" },
+  { keyword: "ゴルフクラブ アイアンセット", label: "アイアン" },
+  { keyword: "ゴルフ パター", label: "パター" },
+  { keyword: "ゴルフ グローブ 手袋", label: "グローブ" },
+  { keyword: "ゴルフシューズ メンズ", label: "シューズ" },
+  { keyword: "ゴルフ ティー マーカー", label: "小物・消耗品" },
+  { keyword: "ゴルフ キャディバッグ", label: "バッグ" },
+  { keyword: "ゴルフ 距離計 レーザー", label: "距離計" },
 ];
 
 export async function GET() {
@@ -21,49 +25,68 @@ export async function GET() {
   }
 
   try {
-    // ランダムにキーワードを選択
-    const keyword = KEYWORDS[Math.floor(Math.random() * KEYWORDS.length)];
+    // 全カテゴリから1件ずつ取得して10件にまとめる
+    const allItems: {
+      rank: number;
+      name: string;
+      price: number;
+      imageUrl: string;
+      affiliateUrl: string;
+      shopName: string;
+      reviewCount: number;
+      reviewAverage: number;
+      category: string;
+    }[] = [];
 
-    const params = new URLSearchParams({
-      format: "json",
-      formatVersion: "2",
-      applicationId: appId,
-      accessKey: accessKey,
-      keyword: keyword,
-      sort: "-reviewCount",
-      hits: "10",
-    });
-    if (affiliateId) params.set("affiliateId", affiliateId);
+    // 並列で全カテゴリ取得
+    const results = await Promise.allSettled(
+      CATEGORIES.map(async (cat) => {
+        const params = new URLSearchParams({
+          format: "json",
+          formatVersion: "2",
+          applicationId: appId,
+          accessKey: accessKey,
+          keyword: cat.keyword,
+          sort: "-reviewCount",
+          hits: "2",
+        });
+        if (affiliateId) params.set("affiliateId", affiliateId);
 
-    const url = `https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20220601?${params}`;
-    const res = await fetch(url, {
-      headers: { Referer: SITE_URL + "/", Origin: SITE_URL },
-      next: { revalidate: 3600 },
-    });
+        const url = `https://openapi.rakuten.co.jp/ichibams/api/IchibaItem/Search/20220601?${params}`;
+        const res = await fetch(url, {
+          headers: { Referer: SITE_URL + "/", Origin: SITE_URL },
+          next: { revalidate: 3600 },
+        });
 
-    if (!res.ok) return NextResponse.json({ items: [] });
-
-    const data = await res.json();
-
-    const items = (data.Items ?? [])
-      .filter((item: Record<string, unknown>) => {
-        const name = (item.itemName as string) ?? "";
-        // ゴルフに関係ない商品を除外
-        return name.includes("ゴルフ") || name.includes("ウェッジ") || name.includes("ドライバー") || name.includes("パター") || name.includes("アイアン");
+        if (!res.ok) return [];
+        const data = await res.json();
+        return (data.Items ?? []).slice(0, 1).map((item: Record<string, unknown>) => ({
+          name: (item.itemName as string)?.slice(0, 60) ?? "",
+          price: item.itemPrice as number,
+          imageUrl: ((item.mediumImageUrls as string[]) ?? [])[0] ?? "",
+          affiliateUrl: (item.affiliateUrl as string) ?? (item.itemUrl as string) ?? "",
+          shopName: (item.shopName as string) ?? "",
+          reviewCount: (item.reviewCount as number) ?? 0,
+          reviewAverage: (item.reviewAverage as number) ?? 0,
+          category: cat.label,
+        }));
       })
-      .slice(0, 10)
-      .map((item: Record<string, unknown>, i: number) => ({
-        rank: i + 1,
-        name: (item.itemName as string)?.slice(0, 60) ?? "",
-        price: item.itemPrice as number,
-        imageUrl: ((item.mediumImageUrls as string[]) ?? [])[0] ?? "",
-        affiliateUrl: (item.affiliateUrl as string) ?? (item.itemUrl as string) ?? "",
-        shopName: (item.shopName as string) ?? "",
-        reviewCount: item.reviewCount as number,
-        reviewAverage: item.reviewAverage as number,
-      }));
+    );
 
-    return NextResponse.json({ items, keyword });
+    // 結果をまとめる
+    for (const result of results) {
+      if (result.status === "fulfilled" && Array.isArray(result.value)) {
+        allItems.push(...result.value);
+      }
+    }
+
+    // ランク付け
+    const items = allItems.slice(0, 10).map((item, i) => ({
+      ...item,
+      rank: i + 1,
+    }));
+
+    return NextResponse.json({ items });
   } catch {
     return NextResponse.json({ items: [] });
   }

@@ -12,6 +12,7 @@ type GolfItem = {
   shopName: string;
   reviewCount: number;
   reviewAverage: number;
+  category?: string;
 };
 
 export default function GolfItemsCarousel() {
@@ -76,9 +77,11 @@ export default function GolfItemsCarousel() {
               >
                 {/* ランキングバッジ + 画像 */}
                 <div className="relative bg-white p-4 flex items-center justify-center h-48">
-                  <div className="absolute top-2 left-2 w-7 h-7 bg-golf-green text-white text-xs font-bold rounded-full flex items-center justify-center">
-                    {item.rank}
-                  </div>
+                  {item.category && (
+                    <div className="absolute top-2 left-2 bg-golf-green/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      {item.category}
+                    </div>
+                  )}
                   {item.imageUrl && (
                     <Image
                       src={item.imageUrl}
