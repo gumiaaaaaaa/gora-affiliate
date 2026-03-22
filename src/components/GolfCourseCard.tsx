@@ -7,8 +7,17 @@ type Props = {
   rank?: number;
 };
 
+// ラウンド表示
+function roundLabel(round: string) {
+  if (round === "0.5R") return "9H";
+  if (round === "1R") return "18H";
+  if (round === "1.5R") return "27H";
+  return round;
+}
+
 export default function GolfCourseCard({ course, rank }: Props) {
   const stars = Math.round(course.rating);
+  const hasPlans = course.plans && course.plans.length > 0;
 
   return (
     <div className="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden border border-gray-100 group">
@@ -52,8 +61,7 @@ export default function GolfCourseCard({ course, rank }: Props) {
         {course.rating > 0 && (
           <div className="flex items-center gap-1.5 mb-3">
             <span className="text-yellow-400 text-xs tracking-tight">
-              {"★".repeat(stars)}
-              {"☆".repeat(5 - stars)}
+              {"★".repeat(stars)}{"☆".repeat(5 - stars)}
             </span>
             <span className="font-semibold text-xs text-gray-600">
               {course.rating.toFixed(1)}
@@ -80,8 +88,50 @@ export default function GolfCourseCard({ course, rank }: Props) {
           </div>
         )}
 
-        {/* おすすめ理由 */}
-        {course.recommend_reason && (
+        {/* プラン一覧（最安3件） */}
+        {hasPlans && (
+          <div className="mb-4 border border-gray-100 rounded-xl overflow-hidden">
+            <div className="bg-gray-50 px-3 py-1.5 border-b border-gray-100">
+              <span className="text-[11px] font-semibold text-gray-500">
+                💰 プラン別料金
+              </span>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {course.plans!.map((plan, i) => (
+                <a
+                  key={i}
+                  href={plan.reserveUrl || course.rakutenUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between px-3 py-2.5 hover:bg-green-50/50 transition-colors group/plan"
+                >
+                  <div className="flex-1 min-w-0 mr-2">
+                    <p className="text-xs text-gray-700 truncate leading-snug">
+                      {plan.name}
+                    </p>
+                    <div className="flex gap-1.5 mt-0.5">
+                      <span className="text-[10px] text-gray-400">{roundLabel(plan.round)}</span>
+                      {plan.cart && <span className="text-[10px] text-gray-400">🚗カート</span>}
+                      {plan.lunch && <span className="text-[10px] text-gray-400">🍱昼食</span>}
+                      {plan.caddie && <span className="text-[10px] text-gray-400">キャディ</span>}
+                    </div>
+                  </div>
+                  <div className="text-right flex items-center gap-1.5">
+                    <span className="font-bold text-sm text-golf-green whitespace-nowrap">
+                      ¥{plan.price.toLocaleString()}
+                    </span>
+                    <span className="text-gray-300 text-xs group-hover/plan:text-golf-green transition-colors">
+                      ›
+                    </span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* おすすめ理由（プランがない場合のみ表示） */}
+        {!hasPlans && course.recommend_reason && (
           <p className="text-xs text-gray-500 bg-golf-cream rounded-lg p-3 mb-4 leading-relaxed">
             {course.recommend_reason}
           </p>

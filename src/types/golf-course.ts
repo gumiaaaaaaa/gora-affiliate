@@ -16,4 +16,16 @@ export type GolfCourse = {
   description: string;
   rakutenUrl: string;  // 楽天GORAの予約URL（アフィリエイトリンク）
   recommend_reason?: string; // 診断結果での表示用
+  plans?: GolfPlan[];  // プラン一覧（最安3件）
+};
+
+// プラン情報
+export type GolfPlan = {
+  name: string;
+  price: number;
+  round: string;       // "0.5R", "1R", "1.5R"
+  cart: boolean;
+  lunch: boolean;
+  caddie: boolean;
+  reserveUrl: string;  // プラン直行予約URL
 };

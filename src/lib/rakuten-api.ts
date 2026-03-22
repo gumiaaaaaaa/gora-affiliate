@@ -1,6 +1,6 @@
 // 楽天GORA API クライアント
 
-import type { GolfCourse } from "@/types/golf-course";
+import type { GolfCourse, GolfPlan } from "@/types/golf-course";
 
 // ===== 定数 =====
 const BASE_URL =
@@ -198,19 +198,23 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
     // フィルタ後にプランが0件なら、このゴルフ場はスキップ
     if (plans.length === 0) continue;
 
-    // 最安値のプランを探す
-    let cheapestPrice = Infinity;
-    let cheapestPlanName = "";
-    let cheapestReserveUrl = "";
-    for (const plan of plans) {
-      if (plan.price && plan.price < cheapestPrice) {
-        cheapestPrice = plan.price;
-        cheapestPlanName = plan.planName ?? "";
-        // プラン直行予約URL
-        cheapestReserveUrl = plan.callInfo?.reservePageUrlPC ?? "";
-      }
-    }
-    if (cheapestPrice === Infinity) cheapestPrice = 0;
+    // プランを価格順にソートして上位3件を取得
+    const sortedPlans = plans
+      .filter((p) => p.price && p.price > 0)
+      .sort((a, b) => (a.price ?? 0) - (b.price ?? 0));
+
+    const top3Plans: GolfPlan[] = sortedPlans.slice(0, 3).map((p) => ({
+      name: p.planName ?? "",
+      price: p.price ?? 0,
+      round: p.round ?? "1R",
+      cart: (p.cart ?? 0) > 0,
+      lunch: p.lunch === 1,
+      caddie: p.caddie === 1,
+      reserveUrl: p.callInfo?.reservePageUrlPC ?? "",
+    }));
+
+    const cheapestPrice = top3Plans[0]?.price ?? 0;
+    const cheapestReserveUrl = top3Plans[0]?.reserveUrl ?? "";
 
     if (!courseMap.has(courseId)) {
       courseMap.set(courseId, {
@@ -228,16 +232,22 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
         holes: 18,
         tags: generateTags(item.evaluation, cheapestPrice, undefined, item.address),
         description: "",
-        // プラン直行URL > コース予約URL の優先順
         rakutenUrl: cheapestReserveUrl || item.reserveCalUrlPC || "",
-        recommend_reason: cheapestPlanName,
+        recommend_reason: "",
+        plans: top3Plans,
       });
     } else {
-      // 既に追加済みなら最安値を更新
+      // 既に追加済みなら最安値とプランを更新
       const existing = courseMap.get(courseId)!;
-      if (cheapestPrice > 0 && cheapestPrice < existing.minPrice) {
-        existing.minPrice = cheapestPrice;
-        existing.recommend_reason = cheapestPlanName;
+      // 新しいプランを既存に追加して再ソート・3件に絞る
+      const allPlans = [...(existing.plans ?? []), ...top3Plans]
+        .sort((a, b) => a.price - b.price)
+        .filter((p, i, arr) => arr.findIndex((x) => x.name === p.name) === i)
+        .slice(0, 3);
+      existing.plans = allPlans;
+      if (allPlans.length > 0 && allPlans[0].price < existing.minPrice) {
+        existing.minPrice = allPlans[0].price;
+        existing.rakutenUrl = allPlans[0].reserveUrl || existing.rakutenUrl;
       }
     }
   }
