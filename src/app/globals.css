@@ -1,31 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply bg-golf-cream text-gray-800;
+    @apply bg-golf-cream text-gray-800 antialiased;
   }
 }
 
 @layer utilities {
   .golf-gradient {
-    background: linear-gradient(135deg, #1a6b3c 0%, #0f4024 100%);
+    background: linear-gradient(160deg, #1B5E3A 0%, #0D3B22 100%);
   }
 }
 
-/* スムーズスクロール */
 html {
   scroll-behavior: smooth;
 }
 
-/* 日付入力のスタイル改善 */
 input[type="date"] {
   -webkit-appearance: none;
   appearance: none;
 }
 
-/* フォーカスリング */
 *:focus-visible {
   @apply outline-2 outline-offset-2 outline-golf-green;
 }

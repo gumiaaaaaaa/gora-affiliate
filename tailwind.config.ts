@@ -23,12 +23,28 @@ const config: Config = {
           950: "#052e16",
         },
         golf: {
-          green: "#1a6b3c",
-          light: "#2d9b5a",
-          dark: "#0f4024",
-          gold: "#c9a84c",
-          cream: "#faf7f0",
+          green: "#1B5E3A",
+          light: "#237A4B",
+          dark: "#0D3B22",
+          gold: "#B8962E",
+          "gold-light": "#D4AD3C",
+          cream: "#FAFAF7",
+          "cream-dark": "#F0EDE6",
         },
+      },
+      fontFamily: {
+        sans: [
+          '"Noto Sans JP"',
+          '"Hiragino Sans"',
+          '"Hiragino Kaku Gothic ProN"',
+          "Meiryo",
+          "sans-serif",
+        ],
+      },
+      boxShadow: {
+        card: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
+        "card-hover":
+          "0 10px 25px rgba(0,0,0,0.08), 0 4px 10px rgba(0,0,0,0.04)",
       },
     },
   },
