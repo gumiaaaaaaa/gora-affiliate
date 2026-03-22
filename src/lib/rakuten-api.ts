@@ -3,12 +3,15 @@
 import type { GolfCourse } from "@/types/golf-course";
 
 // ===== 定数 =====
-const GOLF_COURSE_SEARCH_URL =
-  "https://app.rakuten.co.jp/services/api/Gora/GoraGolfCourseSearch/20170623";
-const PLAN_SEARCH_URL =
-  "https://app.rakuten.co.jp/services/api/Gora/GoraPlanSearch/20170623";
+const BASE_URL =
+  "https://openapi.rakuten.co.jp/engine/api/Gora/GoraGolfCourseSearch/20170623";
+const PLAN_URL =
+  "https://openapi.rakuten.co.jp/engine/api/Gora/GoraPlanSearch/20170623";
 
-// エリアコード → 都道府県名のマッピング
+// 許可ドメイン（Refererヘッダー用）
+const SITE_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
+
+// エリアコード → 都道府県名
 const AREA_CODE_TO_PREFECTURE: Record<number, string> = {
   8: "茨城県",
   9: "栃木県",
@@ -19,47 +22,63 @@ const AREA_CODE_TO_PREFECTURE: Record<number, string> = {
   14: "神奈川県",
 };
 
+// ===== 共通ヘッダー =====
+function getHeaders(): Record<string, string> {
+  return {
+    Referer: SITE_ORIGIN + "/",
+    Origin: SITE_ORIGIN,
+  };
+}
+
+// ===== 共通クエリパラメータ =====
+function getBaseParams(): URLSearchParams {
+  const appId = process.env.RAKUTEN_APP_ID;
+  const accessKey = process.env.RAKUTEN_ACCESS_KEY;
+  if (!appId || !accessKey) {
+    throw new Error("RAKUTEN_APP_ID または RAKUTEN_ACCESS_KEY が未設定");
+  }
+
+  const params = new URLSearchParams({
+    format: "json",
+    formatVersion: "2",
+    applicationId: appId,
+    accessKey: accessKey,
+  });
+
+  const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
+  if (affiliateId) {
+    params.set("affiliateId", affiliateId);
+  }
+
+  return params;
+}
+
 // ===== ゴルフ場検索 =====
 
 type GolfCourseSearchParams = {
-  areaCode?: number;    // 8=茨城, 9=栃木, 10=群馬, 11=埼玉, 12=千葉, 13=東京, 14=神奈川
+  areaCode?: number;
   keyword?: string;
-  hits?: number;        // 取得件数 (1〜30)
-  page?: number;        // ページ番号
-  sort?: string;        // rating, 50on, prefecture
+  hits?: number;
+  page?: number;
+  sort?: string;
 };
 
 export async function searchGolfCourses(
   params: GolfCourseSearchParams
 ): Promise<{ courses: GolfCourse[]; totalCount: number; pageCount: number }> {
-  const appId = process.env.RAKUTEN_APP_ID;
-  if (!appId) {
-    throw new Error("RAKUTEN_APP_ID が設定されていません");
-  }
+  const query = getBaseParams();
+  query.set("hits", String(params.hits ?? 20));
+  query.set("page", String(params.page ?? 1));
+  query.set("sort", params.sort ?? "rating");
 
-  const query = new URLSearchParams({
-    format: "json",
-    formatVersion: "2",
-    applicationId: appId,
-    hits: String(params.hits ?? 20),
-    page: String(params.page ?? 1),
-    sort: params.sort ?? "rating",
+  if (params.areaCode) query.set("areaCode", String(params.areaCode));
+  if (params.keyword) query.set("keyword", params.keyword);
+
+  const url = `${BASE_URL}?${query.toString()}`;
+  const res = await fetch(url, {
+    headers: getHeaders(),
+    next: { revalidate: 900 },
   });
-
-  if (params.areaCode) {
-    query.set("areaCode", String(params.areaCode));
-  }
-  if (params.keyword) {
-    query.set("keyword", params.keyword);
-  }
-
-  const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
-  if (affiliateId) {
-    query.set("affiliateId", affiliateId);
-  }
-
-  const url = `${GOLF_COURSE_SEARCH_URL}?${query.toString()}`;
-  const res = await fetch(url, { next: { revalidate: 900 } }); // 15分キャッシュ
 
   if (!res.ok) {
     const text = await res.text();
@@ -69,27 +88,9 @@ export async function searchGolfCourses(
 
   const data = await res.json();
 
-  const courses: GolfCourse[] = (data.Items ?? []).map((item: RakutenGolfCourseItem) => {
-    const areaCode = item.golfCourseId ? getAreaCodeFromId(item) : 0;
-    return {
-      id: String(item.golfCourseId),
-      name: item.golfCourseName ?? "",
-      nameKana: item.golfCourseNameKana ?? "",
-      areaCode: getInternalAreaCode(item.areaCode),
-      areaName: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
-      prefecture: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
-      address: item.address ?? "",
-      imageUrl: item.golfCourseImageUrl ?? "",
-      rating: item.evaluation ?? 0,
-      reviewCount: item.ratingCount ?? 0,
-      minPrice: item.weekdayMinPrice ?? item.holidayMinPrice ?? 0,
-      holes: item.holeCount ?? 18,
-      tags: generateTags(item),
-      description: item.golfCourseCaption ?? "",
-      rakutenUrl: item.reserveCalUrl ?? item.golfCourseDetailUrl ?? "https://gora.golf.rakuten.co.jp/",
-      recommend_reason: "",
-    };
-  });
+  const courses: GolfCourse[] = (data.Items ?? []).map(
+    (item: RakutenGolfCourseItem) => mapToCourse(item)
+  );
 
   return {
     courses,
@@ -102,7 +103,7 @@ export async function searchGolfCourses(
 
 type PlanSearchParams = {
   areaCode?: number;
-  playDate: string;     // "YYYY-MM-DD"
+  playDate: string;
   minPrice?: number;
   maxPrice?: number;
   hits?: number;
@@ -114,37 +115,20 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
   totalCount: number;
   pageCount: number;
 }> {
-  const appId = process.env.RAKUTEN_APP_ID;
-  if (!appId) {
-    throw new Error("RAKUTEN_APP_ID が設定されていません");
-  }
+  const query = getBaseParams();
+  query.set("playDate", params.playDate);
+  query.set("hits", String(params.hits ?? 20));
+  query.set("page", String(params.page ?? 1));
 
-  const query = new URLSearchParams({
-    format: "json",
-    formatVersion: "2",
-    applicationId: appId,
-    playDate: params.playDate,
-    hits: String(params.hits ?? 20),
-    page: String(params.page ?? 1),
+  if (params.areaCode) query.set("areaCode", String(params.areaCode));
+  if (params.minPrice) query.set("minPrice", String(params.minPrice));
+  if (params.maxPrice) query.set("maxPrice", String(params.maxPrice));
+
+  const url = `${PLAN_URL}?${query.toString()}`;
+  const res = await fetch(url, {
+    headers: getHeaders(),
+    next: { revalidate: 900 },
   });
-
-  if (params.areaCode) {
-    query.set("areaCode", String(params.areaCode));
-  }
-  if (params.minPrice) {
-    query.set("minPrice", String(params.minPrice));
-  }
-  if (params.maxPrice) {
-    query.set("maxPrice", String(params.maxPrice));
-  }
-
-  const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
-  if (affiliateId) {
-    query.set("affiliateId", affiliateId);
-  }
-
-  const url = `${PLAN_SEARCH_URL}?${query.toString()}`;
-  const res = await fetch(url, { next: { revalidate: 900 } });
 
   if (!res.ok) {
     const text = await res.text();
@@ -167,7 +151,7 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
         areaCode: getInternalAreaCode(item.areaCode),
         areaName: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
         prefecture: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
-        address: "",
+        address: item.address ?? "",
         imageUrl: item.golfCourseImageUrl ?? "",
         rating: item.evaluation ?? 0,
         reviewCount: item.ratingCount ?? 0,
@@ -175,11 +159,10 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
         holes: 18,
         tags: [],
         description: "",
-        rakutenUrl: item.reserveCalUrl ?? "https://gora.golf.rakuten.co.jp/",
+        rakutenUrl: item.reserveCalUrl ?? "",
         recommend_reason: item.planName ?? "",
       });
     } else {
-      // 最安値を更新
       const existing = courseMap.get(courseId)!;
       if (item.price && item.price < existing.minPrice) {
         existing.minPrice = item.price;
@@ -195,6 +178,29 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
 }
 
 // ===== ヘルパー関数 =====
+
+// APIレスポンス → GolfCourse型に変換
+function mapToCourse(item: RakutenGolfCourseItem): GolfCourse {
+  return {
+    id: String(item.golfCourseId),
+    name: item.golfCourseName ?? "",
+    nameKana: item.golfCourseNameKana ?? "",
+    areaCode: getInternalAreaCode(item.areaCode),
+    areaName: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
+    prefecture: AREA_CODE_TO_PREFECTURE[item.areaCode] ?? "",
+    address: item.address ?? "",
+    imageUrl: item.golfCourseImageUrl ?? "",
+    rating: item.evaluation ?? 0,
+    reviewCount: item.ratingCount ?? 0,
+    minPrice: item.weekdayMinPrice ?? item.holidayMinPrice ?? 0,
+    holes: item.holeCount ?? 18,
+    tags: generateTags(item),
+    description: item.golfCourseCaption ?? "",
+    // reserveCalUrl = 予約カレンダー直行（アフィリエイトリンク付き）
+    rakutenUrl: item.reserveCalUrl ?? item.golfCourseDetailUrl ?? "",
+    recommend_reason: "",
+  };
+}
 
 // 楽天のエリアコードを内部コードに変換
 function getInternalAreaCode(rakutenCode: number): string {
@@ -218,12 +224,20 @@ function generateTags(item: RakutenGolfCourseItem): string[] {
   if (item.weekdayMinPrice && item.weekdayMinPrice < 8000) tags.push("コスパ良し");
   if (item.weekdayMinPrice && item.weekdayMinPrice >= 15000) tags.push("名門");
   if (item.holeCount && item.holeCount >= 27) tags.push("27H以上");
-  return tags;
-}
 
-// 未使用だが型安全のために残す
-function getAreaCodeFromId(_item: RakutenGolfCourseItem): number {
-  return 0;
+  // 住所からサブエリアタグを生成
+  const addr = item.address ?? "";
+  if (addr.includes("木更津") || addr.includes("君津") || addr.includes("富津")) {
+    tags.push("内房・木更津");
+  } else if (addr.includes("館山") || addr.includes("鴨川") || addr.includes("南房総")) {
+    tags.push("南房総");
+  } else if (addr.includes("成田") || addr.includes("印西") || addr.includes("富里")) {
+    tags.push("成田・北総");
+  } else if (addr.includes("市原") || addr.includes("茂原") || addr.includes("長柄")) {
+    tags.push("市原・茂原");
+  }
+
+  return tags;
 }
 
 // 楽天APIレスポンスの型

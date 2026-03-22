@@ -1,5 +1,5 @@
 // ゴルフ場検索 API ルート
-// GET /api/golf-courses?area=chiba&budget=under8000&level=beginner&date=2025-04-01
+// GET /api/golf-courses?area=chiba&budget=under8000&level=beginner&date=2026-04-01
 
 import { NextRequest, NextResponse } from "next/server";
 import { searchGolfCourses, searchPlans } from "@/lib/rakuten-api";
@@ -33,14 +33,12 @@ function generateRecommendReason(
 ): string {
   const reasons: string[] = [];
 
-  // 評価に基づく理由
   if (course.rating >= 4.5) {
     reasons.push("口コミ評価が非常に高い人気コース");
   } else if (course.rating >= 4.0) {
     reasons.push("安定した高評価のコース");
   }
 
-  // レベルに応じた理由
   if (level === "beginner") {
     if (course.minPrice < 8000) {
       reasons.push("初心者にも手頃な価格で気軽にプレーできます");
@@ -48,21 +46,17 @@ function generateRecommendReason(
       reasons.push("初めてでも楽しめる環境が整っています");
     }
   } else if (level === "advanced") {
-    if (course.minPrice >= 15000) {
-      reasons.push("上級者も満足の本格的なコース設計");
-    } else {
-      reasons.push("実力を試せる戦略的なレイアウト");
-    }
+    reasons.push("上級者も満足の戦略的なコース設計");
+  } else if (level === "intermediate") {
+    reasons.push("中級者のスキルアップに最適なコース");
   }
 
-  // 予算に応じた理由
   if (budget === "under8000" && course.minPrice < 8000) {
     reasons.push("リーズナブルな料金でコスパ抜群");
   }
 
-  // ホール数
   if (course.holes >= 27) {
-    reasons.push(`${course.holes}ホールで飽きのこないプレーが楽しめます`);
+    reasons.push(`${course.holes}ホールで一日たっぷり楽しめます`);
   }
 
   return reasons.slice(0, 2).join("。") + (reasons.length > 0 ? "。" : "");
@@ -76,7 +70,7 @@ export async function GET(request: NextRequest) {
   const date = params.get("date") ?? "";
 
   // APIキーが設定されていない場合はモックデータを返す
-  if (!process.env.RAKUTEN_APP_ID) {
+  if (!process.env.RAKUTEN_APP_ID || !process.env.RAKUTEN_ACCESS_KEY) {
     const courses = filterCourses({ area, budget, level });
     return NextResponse.json({ courses, source: "mock" });
   }
@@ -84,7 +78,7 @@ export async function GET(request: NextRequest) {
   try {
     const rakutenAreaCode = AREA_TO_RAKUTEN[area];
 
-    // 日付が指定されている場合はプラン検索（予算フィルタ付き）
+    // 日付が指定されている場合はプラン検索
     if (date) {
       const budgetRange = BUDGET_TO_RANGE[budget] ?? {};
       const result = await searchPlans({
@@ -95,10 +89,10 @@ export async function GET(request: NextRequest) {
         hits: 20,
       });
 
-      // おすすめ理由を付与
       const coursesWithReason = result.courses.map((c) => ({
         ...c,
-        recommend_reason: c.recommend_reason || generateRecommendReason(c, level, budget),
+        recommend_reason:
+          c.recommend_reason || generateRecommendReason(c, level, budget),
       }));
 
       return NextResponse.json({
@@ -127,7 +121,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // レベルでフィルタリング・ソート
+    // レベルでソート
     if (level === "beginner") {
       courses.sort((a, b) => {
         const aScore = a.rating - a.minPrice / 10000;
@@ -152,7 +146,6 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("API エラー:", error);
 
-    // エラー時はモックデータにフォールバック
     const courses = filterCourses({ area, budget, level });
     return NextResponse.json({
       courses,
