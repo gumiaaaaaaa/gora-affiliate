@@ -27,7 +27,7 @@ export default function GolfCourseCard({ course, rank }: Props) {
   // アコーディア/PGM系列判定
   const isAccordia = course.name.includes("アコーディア");
   const isPGM = course.name.includes("ＰＧＭ") || course.name.includes("PGM");
-  const hasOfficialApp = isAccordia || isPGM;
+  const cleanName = course.name.replace(/【.*?】/g, "").trim();
 
   return (
     <div className="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden border border-gray-100 group">
@@ -175,39 +175,51 @@ export default function GolfCourseCard({ course, rank }: Props) {
         </div>
 
         {/* 他サイトで比較 */}
-        <div className="mt-3 flex flex-col gap-1.5">
-          {/* じゃらんゴルフリンク（アフィリエイト） */}
+        <div className="mt-3 border border-gray-100 rounded-xl overflow-hidden">
+          <div className="bg-gray-50 px-3 py-1.5 border-b border-gray-100">
+            <span className="text-[11px] font-semibold text-gray-500">🔍 他サイトで料金を比較</span>
+          </div>
+
+          {/* じゃらん */}
           <a
-            href={toJalanAffiliateUrl(course.name.replace(/【.*】/g, "").trim())}
+            href={toJalanAffiliateUrl(cleanName)}
             target="_blank"
             rel="nofollow"
-            className="flex items-center justify-between text-[11px] text-gray-400 hover:text-orange-500 transition-colors px-1"
+            className="flex items-center justify-between px-3 py-2 hover:bg-orange-50/50 transition-colors border-b border-gray-50"
           >
-            <span>🔍 じゃらんゴルフでも料金を比較</span>
-            <span>›</span>
+            <span className="bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">じゃらん</span>
+            <span className="text-xs text-gray-400 group-hover:text-orange-500">料金を確認 ›</span>
           </a>
 
-          {/* アコーディア/PGM公式 */}
+          {/* アコーディア */}
           {isAccordia && (
             <a
-              href={`https://reserve.accordiagolf.com/golfCourse/?keyword=${encodeURIComponent(course.name.replace(/【.*】/g, "").trim())}`}
+              href={`https://reserve.accordiagolf.com/`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between text-[11px] text-orange-500 font-medium px-1 hover:text-orange-600 transition-colors"
+              className="flex items-center justify-between px-3 py-2 hover:bg-blue-50/50 transition-colors border-b border-gray-50"
             >
-              <span>💡 アコーディア公式（さらに安い場合あり）</span>
-              <span>›</span>
+              <div className="flex items-center gap-2">
+                <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">アコーディア</span>
+                <span className="text-[10px] text-orange-500">安い場合あり</span>
+              </div>
+              <span className="text-xs text-gray-400">確認 ›</span>
             </a>
           )}
+
+          {/* PGM */}
           {isPGM && (
             <a
               href="https://booking.pacificgolf.co.jp/"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between text-[11px] text-orange-500 font-medium px-1 hover:text-orange-600 transition-colors"
+              className="flex items-center justify-between px-3 py-2 hover:bg-emerald-50/50 transition-colors"
             >
-              <span>💡 PGM公式（さらに安い場合あり）</span>
-              <span>›</span>
+              <div className="flex items-center gap-2">
+                <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">PGM</span>
+                <span className="text-[10px] text-orange-500">安い場合あり</span>
+              </div>
+              <span className="text-xs text-gray-400">確認 ›</span>
             </a>
           )}
         </div>
