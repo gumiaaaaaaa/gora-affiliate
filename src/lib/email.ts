@@ -1,7 +1,7 @@
 import { Resend } from "resend";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
-const FROM_EMAIL = "関東ゴルフ場ナビ <onboarding@resend.dev>";
+const FROM_EMAIL = "ゴルプラ比較 <onboarding@resend.dev>";
 
 // Resendクライアントを遅延初期化（APIキー未設定時のビルドエラー防止）
 function getResend() {
@@ -29,7 +29,7 @@ export async function sendPriceDropEmail(params: PriceDropEmailParams) {
   const html = `
     <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #faf7f0;">
       <div style="background: linear-gradient(135deg, #1a6b3c, #0f4024); padding: 24px; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 20px;">⛳ 関東ゴルフ場ナビ</h1>
+        <h1 style="color: white; margin: 0; font-size: 20px;">⛳ ゴルプラ比較</h1>
       </div>
 
       <div style="padding: 32px 24px;">
@@ -124,7 +124,7 @@ export async function sendRegistrationConfirmEmail(params: RegistrationConfirmPa
   const html = `
     <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAFAF7;">
       <div style="background: linear-gradient(160deg, #1B5E3A, #0D3B22); padding: 24px; text-align: center;">
-        <h1 style="color: white; margin: 0; font-size: 20px;">⛳ 関東ゴルフ場ナビ</h1>
+        <h1 style="color: white; margin: 0; font-size: 20px;">⛳ ゴルプラ比較</h1>
       </div>
 
       <div style="padding: 32px 24px;">

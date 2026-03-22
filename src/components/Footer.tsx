@@ -11,7 +11,7 @@ export default function Footer() {
               <div className="w-7 h-7 bg-golf-green rounded-lg flex items-center justify-center">
                 <span className="text-white text-xs font-bold">G</span>
               </div>
-              <span className="font-bold text-white text-base">関東ゴルフ場ナビ</span>
+              <span className="font-bold text-white text-base">ゴルプラ比較</span>
             </div>
             <p className="text-sm leading-relaxed text-gray-500">
               関東エリアのゴルフ場をかんたんに探せる情報サイトです。
@@ -35,7 +35,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-gray-800 mt-10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-xs text-gray-600">
-          <p>© {new Date().getFullYear()} 関東ゴルフ場ナビ</p>
+          <p>© {new Date().getFullYear()} ゴルプラ比較</p>
           <p>楽天アフィリエイトプログラム提携サイト</p>
         </div>
       </div>

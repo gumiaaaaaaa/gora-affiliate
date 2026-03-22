@@ -20,7 +20,7 @@ export default function TokushohoPage() {
             <tbody>
               <tr className="border-b border-gray-100">
                 <td className="py-3 pr-4 text-gray-500 whitespace-nowrap w-32">運営者</td>
-                <td className="py-3">関東ゴルフ場ナビ 運営事務局</td>
+                <td className="py-3">ゴルプラ比較 運営事務局</td>
               </tr>
               <tr className="border-b border-gray-100">
                 <td className="py-3 pr-4 text-gray-500 whitespace-nowrap">お問い合わせ</td>

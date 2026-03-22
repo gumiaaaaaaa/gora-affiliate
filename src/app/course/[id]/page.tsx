@@ -254,7 +254,7 @@ export default async function CourseDetailPage({
         <div className="flex justify-center my-6">
           <ShareButtons
             url={`https://golf-plat.com/course/${id}`}
-            title={`${name} | 関東ゴルフ場ナビ`}
+            title={`${name} | ゴルプラ比較`}
           />
         </div>
 

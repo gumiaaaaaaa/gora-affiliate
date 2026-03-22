@@ -15,7 +15,7 @@ export default function Header() {
             <span className="text-white text-sm font-bold">G</span>
           </div>
           <span className="font-bold text-lg text-gray-800 tracking-tight">
-            関東ゴルフ場ナビ
+            ゴルプラ比較
           </span>
         </Link>
 

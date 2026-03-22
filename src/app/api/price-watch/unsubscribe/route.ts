@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
           <h1 style="color: #1B5E3A;">✅ 通知を解除しました</h1>
           <p style="color: #666;">料金下落の通知メールは今後送信されません。</p>
           <p style="margin-top: 24px;">
-            <a href="https://golf-plat.com" style="color: #1B5E3A;">関東ゴルフ場ナビに戻る →</a>
+            <a href="https://golf-plat.com" style="color: #1B5E3A;">ゴルプラ比較に戻る →</a>
           </p>
         </body>
       </html>`,
