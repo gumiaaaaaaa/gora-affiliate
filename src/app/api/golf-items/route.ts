@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
 
 // ゴルフ用品のカテゴリ
-export const GOLF_ITEM_GOLF_ITEM_CATEGORIES = [
+export const GOLF_ITEM_CATEGORIES = [
   { keyword: "ゴルフボール", label: "ボール" },
   { keyword: "ゴルフクラブ ドライバー", label: "ドライバー" },
   { keyword: "ゴルフクラブ アイアンセット", label: "アイアン" },

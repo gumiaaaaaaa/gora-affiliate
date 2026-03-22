@@ -38,6 +38,92 @@ async function getCourseDetail(id: string) {
   }
 }
 
+// プラン一覧取得（次の土曜日のプランを取得）
+type CoursePlan = {
+  name: string;
+  price: number;
+  round: string;
+  cart: boolean;
+  lunch: boolean;
+  twosome: boolean;
+  twoBagFee: number;
+  threeBagFee: number;
+  reserveUrl: string;
+};
+
+async function getCoursePlans(courseId: string, areaCode?: number): Promise<CoursePlan[]> {
+  const appId = process.env.RAKUTEN_APP_ID;
+  const accessKey = process.env.RAKUTEN_ACCESS_KEY;
+  const affiliateId = process.env.RAKUTEN_AFFILIATE_ID;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
+
+  if (!appId || !accessKey) return [];
+
+  // 次の土曜日を計算
+  const now = new Date();
+  const daysUntilSat = (6 - now.getDay() + 7) % 7 || 7;
+  const nextSat = new Date(now.getTime() + daysUntilSat * 86400000);
+  const playDate = nextSat.toISOString().split("T")[0];
+
+  try {
+    const params = new URLSearchParams({
+      format: "json",
+      formatVersion: "2",
+      applicationId: appId,
+      accessKey: accessKey,
+      playDate: playDate,
+      hits: "30",
+    });
+    if (affiliateId) params.set("affiliateId", affiliateId);
+    if (areaCode) params.set("areaCode", String(areaCode));
+
+    const url = `https://openapi.rakuten.co.jp/engine/api/Gora/GoraPlanSearch/20170623?${params}`;
+    const res = await fetch(url, {
+      headers: { Referer: siteUrl + "/", Origin: siteUrl },
+      next: { revalidate: 1800 },
+    });
+
+    if (!res.ok) return [];
+    const data = await res.json();
+
+    // 該当コースのプランを抽出
+    const courseItem = (data.Items ?? []).find(
+      (item: Record<string, unknown>) => String(item.golfCourseId) === courseId
+    );
+    if (!courseItem) return [];
+
+    const planInfos = Array.isArray(courseItem.planInfo)
+      ? courseItem.planInfo
+      : courseItem.planInfo
+      ? [courseItem.planInfo]
+      : [];
+
+    return planInfos
+      .filter((p: Record<string, unknown>) => p.price && (p.price as number) > 0)
+      .sort((a: Record<string, unknown>, b: Record<string, unknown>) => (a.price as number) - (b.price as number))
+      .map((p: Record<string, unknown>) => ({
+        name: (p.planName as string) ?? "",
+        price: (p.price as number) ?? 0,
+        round: (p.round as string) ?? "1R",
+        cart: ((p.cart as number) ?? 0) > 0,
+        lunch: (p.lunch as number) === 1,
+        twosome: (p.assu2sum as number) === 1,
+        twoBagFee: (p.addFee2bFlag as number) === 1 ? ((p.addFee2b as number) ?? 0) : 0,
+        threeBagFee: (p.addFee3bFlag as number) === 1 ? ((p.addFee3b as number) ?? 0) : 0,
+        reserveUrl: ((p.callInfo as Record<string, unknown>)?.reservePageUrlPC as string) ?? "",
+      }));
+  } catch {
+    return [];
+  }
+}
+
+function roundLabel(round: string) {
+  if (round === "0.5R") return "9H";
+  if (round === "1R") return "18H";
+  if (round === "1.5R") return "27H";
+  return round;
+}
+
 // 評価の星を生成
 function Stars({ rating }: { rating: number }) {
   const full = Math.round(rating);
@@ -88,6 +174,10 @@ export default async function CourseDetailPage({
   const latitude = course.latitude;
   const longitude = course.longitude;
   const highway = course.highway ?? "";
+  const areaCode = course.areaCode;
+
+  // プラン一覧取得
+  const plans = await getCoursePlans(id, areaCode);
 
   // 構造化データ (schema.org)
   const structuredData = {
@@ -214,6 +304,55 @@ export default async function CourseDetailPage({
           >
             楽天GORAで予約する →
           </a>
+        )}
+
+        {/* プラン一覧 */}
+        {plans.length > 0 && (
+          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-6">
+            <div className="bg-golf-green px-5 py-3">
+              <h2 className="font-bold text-white text-sm">💰 プラン一覧（安い順）</h2>
+              <p className="text-green-200 text-[11px] mt-0.5">
+                次の週末のプラン {plans.length}件
+              </p>
+            </div>
+            <div className="divide-y divide-gray-100">
+              {plans.map((plan, i) => (
+                <a
+                  key={i}
+                  href={plan.reserveUrl || reserveUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-between px-5 py-3.5 hover:bg-green-50/50 transition-colors group"
+                >
+                  <div className="flex-1 min-w-0 mr-3">
+                    <p className="text-sm text-gray-700 leading-snug mb-1">
+                      {plan.name}
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      <span className="text-[11px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{roundLabel(plan.round)}</span>
+                      {plan.cart && <span className="text-[11px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">🚗カート</span>}
+                      {plan.lunch && <span className="text-[11px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">🍱昼食</span>}
+                      {plan.twosome && <span className="text-[11px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-medium">2サム保証</span>}
+                      {plan.twoBagFee > 0 ? (
+                        <span className="text-[11px] bg-orange-50 text-orange-500 px-1.5 py-0.5 rounded font-medium">2B+¥{plan.twoBagFee.toLocaleString()}</span>
+                      ) : (
+                        <span className="text-[11px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-medium">2B割増なし</span>
+                      )}
+                      {plan.threeBagFee > 0 && (
+                        <span className="text-[11px] bg-orange-50 text-orange-500 px-1.5 py-0.5 rounded font-medium">3B+¥{plan.threeBagFee.toLocaleString()}</span>
+                      )}
+                    </div>
+                  </div>
+                  <div className="text-right flex items-center gap-2">
+                    <span className="font-bold text-lg text-golf-green whitespace-nowrap">
+                      ¥{plan.price.toLocaleString()}
+                    </span>
+                    <span className="text-gray-300 group-hover:text-golf-green transition-colors">›</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
         )}
 
         {/* コース紹介 */}
