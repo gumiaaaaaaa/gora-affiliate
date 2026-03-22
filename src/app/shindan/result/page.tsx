@@ -40,6 +40,7 @@ function ResultContent() {
   const level = searchParams.get("level") ?? "";
   const date = searchParams.get("date") ?? "";
   const startTime = searchParams.get("startTime") ?? "";
+  const round = searchParams.get("round") ?? "";
   const playStyles = searchParams.get("playStyles") ?? "";
 
   const [courses, setCourses] = useState<GolfCourse[]>([]);
@@ -57,6 +58,7 @@ function ResultContent() {
         if (level) params.set("level", level);
         if (date) params.set("date", date);
         if (startTime) params.set("startTime", startTime);
+        if (round) params.set("round", round);
         if (playStyles) params.set("playStyles", playStyles);
 
         const res = await fetch(`/api/golf-courses?${params.toString()}`);
@@ -74,7 +76,7 @@ function ResultContent() {
     }
 
     fetchCourses();
-  }, [area, subArea, budget, level, date, startTime, playStyles]);
+  }, [area, subArea, budget, level, date, startTime, round, playStyles]);
 
   // 条件タグ
   const conditions = [
@@ -84,6 +86,7 @@ function ResultContent() {
     groupSize && { label: "人数", value: getLabel(GROUP_SIZES, groupSize) },
     level && { label: "レベル", value: getLabel(LEVELS, level) },
     date && { label: "希望日", value: date },
+    round && { label: "ラウンド", value: round === "0.5R" ? "9H" : round === "1R" ? "18H" : round === "1.5R" ? "27H" : round },
     startTime && { label: "時間帯", value: getLabel(START_TIMES, startTime) },
     playStyles && {
       label: "スタイル",
