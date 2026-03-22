@@ -4,6 +4,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import ShareButtons from "@/components/ShareButtons";
 import PriceWatchForm from "@/components/PriceWatchForm";
+import CoursePlanList from "@/components/CoursePlanList";
 
 // ゴルフ場詳細データ取得
 async function getCourseDetail(id: string) {
@@ -174,10 +175,7 @@ export default async function CourseDetailPage({
   const latitude = course.latitude;
   const longitude = course.longitude;
   const highway = course.highway ?? "";
-  const areaCode = course.areaCode;
-
-  // プラン一覧取得
-  const plans = await getCoursePlans(id, areaCode);
+  // areaCodeは不要になった（クライアントサイドで取得するため）
 
   // 構造化データ (schema.org)
   const structuredData = {
@@ -306,54 +304,11 @@ export default async function CourseDetailPage({
           </a>
         )}
 
-        {/* プラン一覧 */}
-        {plans.length > 0 && (
-          <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden mb-6">
-            <div className="bg-golf-green px-5 py-3">
-              <h2 className="font-bold text-white text-sm">💰 プラン一覧（安い順）</h2>
-              <p className="text-green-200 text-[11px] mt-0.5">
-                次の週末のプラン {plans.length}件
-              </p>
-            </div>
-            <div className="divide-y divide-gray-100">
-              {plans.map((plan, i) => (
-                <a
-                  key={i}
-                  href={plan.reserveUrl || reserveUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-between px-5 py-3.5 hover:bg-green-50/50 transition-colors group"
-                >
-                  <div className="flex-1 min-w-0 mr-3">
-                    <p className="text-sm text-gray-700 leading-snug mb-1">
-                      {plan.name}
-                    </p>
-                    <div className="flex flex-wrap gap-1.5">
-                      <span className="text-[11px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{roundLabel(plan.round)}</span>
-                      {plan.cart && <span className="text-[11px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">🚗カート</span>}
-                      {plan.lunch && <span className="text-[11px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">🍱昼食</span>}
-                      {plan.twosome && <span className="text-[11px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-medium">2サム保証</span>}
-                      {plan.twoBagFee > 0 ? (
-                        <span className="text-[11px] bg-orange-50 text-orange-500 px-1.5 py-0.5 rounded font-medium">2B+¥{plan.twoBagFee.toLocaleString()}</span>
-                      ) : (
-                        <span className="text-[11px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded font-medium">2B割増なし</span>
-                      )}
-                      {plan.threeBagFee > 0 && (
-                        <span className="text-[11px] bg-orange-50 text-orange-500 px-1.5 py-0.5 rounded font-medium">3B+¥{plan.threeBagFee.toLocaleString()}</span>
-                      )}
-                    </div>
-                  </div>
-                  <div className="text-right flex items-center gap-2">
-                    <span className="font-bold text-lg text-golf-green whitespace-nowrap">
-                      ¥{plan.price.toLocaleString()}
-                    </span>
-                    <span className="text-gray-300 group-hover:text-golf-green transition-colors">›</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        )}
+        {/* プラン一覧（日付選択付き） */}
+        <CoursePlanList
+          courseId={id}
+          fallbackReserveUrl={reserveUrl}
+        />
 
         {/* コース紹介 */}
         {caption && (
