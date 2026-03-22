@@ -210,6 +210,8 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
       cart: (p.cart ?? 0) > 0,
       lunch: p.lunch === 1,
       caddie: p.caddie === 1,
+      twosome: p.assu2sum === 1,
+      twoBagFee: p.addFee2bFlag === 1 ? (p.addFee2b ?? 0) : 0,
       reserveUrl: p.callInfo?.reservePageUrlPC ?? "",
     }));
 
@@ -349,6 +351,10 @@ type PlanInfo = {
   caddie?: number;
   stay?: number;
   drink?: number;
+  addFee2bFlag?: number;
+  addFee2b?: number;
+  addFee3bFlag?: number;
+  addFee3b?: number;
   callInfo?: {
     reservePageUrlPC?: string;
     stockCount?: number;

@@ -19,6 +19,11 @@ export default function GolfCourseCard({ course, rank }: Props) {
   const stars = Math.round(course.rating);
   const hasPlans = course.plans && course.plans.length > 0;
 
+  // アコーディア/PGM系列判定
+  const isAccordia = course.name.includes("アコーディア");
+  const isPGM = course.name.includes("ＰＧＭ") || course.name.includes("PGM");
+  const hasOfficialApp = isAccordia || isPGM;
+
   return (
     <div className="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden border border-gray-100 group">
       {/* 画像 */}
@@ -109,11 +114,17 @@ export default function GolfCourseCard({ course, rank }: Props) {
                     <p className="text-xs text-gray-700 truncate leading-snug">
                       {plan.name}
                     </p>
-                    <div className="flex gap-1.5 mt-0.5">
+                    <div className="flex flex-wrap gap-1.5 mt-0.5">
                       <span className="text-[10px] text-gray-400">{roundLabel(plan.round)}</span>
                       {plan.cart && <span className="text-[10px] text-gray-400">🚗カート</span>}
                       {plan.lunch && <span className="text-[10px] text-gray-400">🍱昼食</span>}
                       {plan.caddie && <span className="text-[10px] text-gray-400">キャディ</span>}
+                      {plan.twosome && <span className="text-[10px] text-green-600 font-semibold">2サム保証</span>}
+                      {plan.twoBagFee > 0 ? (
+                        <span className="text-[10px] text-orange-500 font-semibold">2B割増+¥{plan.twoBagFee.toLocaleString()}</span>
+                      ) : (
+                        <span className="text-[10px] text-green-600 font-semibold">2B割増なし✅</span>
+                      )}
                     </div>
                   </div>
                   <div className="text-right flex items-center gap-1.5">
@@ -154,6 +165,13 @@ export default function GolfCourseCard({ course, rank }: Props) {
             予約する →
           </a>
         </div>
+
+        {/* アコーディア/PGM公式アプリ案内 */}
+        {hasOfficialApp && (
+          <p className="text-[11px] text-orange-500 mt-2 text-center">
+            💡 {isAccordia ? "アコーディア" : "PGM"}系列：公式アプリの方が安い場合があります
+          </p>
+        )}
       </div>
     </div>
   );
