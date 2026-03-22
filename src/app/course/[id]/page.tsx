@@ -32,7 +32,7 @@ async function getCourseDetail(id: string) {
 
     if (!res.ok) return null;
     const data = await res.json();
-    return data.Items?.[0] ?? data ?? null;
+    return data.Item ?? data.Items?.[0] ?? null;
   } catch {
     return null;
   }
