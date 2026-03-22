@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseAdmin } from "@/lib/supabase";
+import { sendRegistrationConfirmEmail } from "@/lib/email";
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     const supabase = getSupabaseAdmin();
 
     // 重複チェック & upsert
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("price_watchers")
       .upsert(
         {
@@ -36,7 +37,9 @@ export async function POST(request: NextRequest) {
         {
           onConflict: "email,golf_course_id",
         }
-      );
+      )
+      .select("unsubscribe_token")
+      .single();
 
     if (error) {
       console.error("Supabase error:", error);
@@ -44,6 +47,20 @@ export async function POST(request: NextRequest) {
         { error: "登録に失敗しました。もう一度お試しください。" },
         { status: 500 }
       );
+    }
+
+    // 確認メール送信
+    try {
+      await sendRegistrationConfirmEmail({
+        to: email,
+        courseName: golfCourseName,
+        courseId: golfCourseId,
+        thresholdPrice: thresholdPrice || null,
+        unsubscribeToken: data?.unsubscribe_token ?? "",
+      });
+    } catch (emailError) {
+      console.error("Confirmation email error:", emailError);
+      // メール送信失敗しても登録自体は成功扱い
     }
 
     return NextResponse.json({ success: true });

@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
+const FROM_EMAIL = "関東ゴルフ場ナビ <onboarding@resend.dev>";
 
 // Resendクライアントを遅延初期化（APIキー未設定時のビルドエラー防止）
 function getResend() {
@@ -98,9 +99,86 @@ export async function sendPriceDropEmail(params: PriceDropEmailParams) {
 
   const resend = getResend();
   return resend.emails.send({
-    from: "関東ゴルフ場ナビ <noreply@golf-plat.com>",
+    from: FROM_EMAIL,
     to: params.to,
     subject: `🔔 ${params.courseName}の料金が${dropAmount.toLocaleString()}円下がりました！`,
+    html,
+  });
+}
+
+// ===== 登録確認メール =====
+
+type RegistrationConfirmParams = {
+  to: string;
+  courseName: string;
+  courseId: string;
+  thresholdPrice?: number | null;
+  unsubscribeToken: string;
+};
+
+export async function sendRegistrationConfirmEmail(params: RegistrationConfirmParams) {
+  const thresholdText = params.thresholdPrice
+    ? `¥${params.thresholdPrice.toLocaleString()}以下になったら`
+    : "料金が下がったら";
+
+  const html = `
+    <div style="font-family: 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #FAFAF7;">
+      <div style="background: linear-gradient(160deg, #1B5E3A, #0D3B22); padding: 24px; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 20px;">⛳ 関東ゴルフ場ナビ</h1>
+      </div>
+
+      <div style="padding: 32px 24px;">
+        <h2 style="color: #1B5E3A; font-size: 18px; margin: 0 0 8px;">
+          ✅ 通知登録が完了しました
+        </h2>
+        <p style="color: #666; font-size: 14px; margin: 0 0 24px;">
+          以下の条件で料金をウォッチします。
+        </p>
+
+        <div style="background: white; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb;">
+          <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+              <td style="padding: 12px 0; color: #999; width: 100px;">ゴルフ場</td>
+              <td style="padding: 12px 0; font-weight: bold; color: #333;">${params.courseName}</td>
+            </tr>
+            <tr style="border-bottom: 1px solid #f3f4f6;">
+              <td style="padding: 12px 0; color: #999;">通知条件</td>
+              <td style="padding: 12px 0; color: #1B5E3A; font-weight: bold;">${thresholdText}通知</td>
+            </tr>
+            <tr>
+              <td style="padding: 12px 0; color: #999;">通知先</td>
+              <td style="padding: 12px 0; color: #333;">${params.to}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="margin-top: 24px; text-align: center;">
+          <a href="${SITE_URL}/course/${params.courseId}"
+             style="display: inline-block; background: #1B5E3A; color: white; text-align: center; padding: 12px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 14px;">
+            コース詳細を見る →
+          </a>
+        </div>
+
+        <p style="color: #999; font-size: 12px; margin-top: 24px; line-height: 1.6;">
+          毎日自動で料金をチェックし、条件に合った場合にメールでお知らせします。
+          通知が不要になった場合は下記リンクから解除できます。
+        </p>
+      </div>
+
+      <div style="padding: 16px 24px; border-top: 1px solid #e5e7eb; text-align: center;">
+        <a href="${SITE_URL}/api/price-watch/unsubscribe?token=${params.unsubscribeToken}"
+           style="color: #999; font-size: 11px;">
+          通知を解除する
+        </a>
+      </div>
+    </div>
+  `;
+
+  const resend = getResend();
+  return resend.emails.send({
+    from: FROM_EMAIL,
+    to: params.to,
+    subject: `✅ ${params.courseName}の料金通知を登録しました`,
     html,
   });
 }
