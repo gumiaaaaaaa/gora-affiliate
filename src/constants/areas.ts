@@ -11,7 +11,7 @@ export const AREAS: { code: AreaCode; name: string; rakutenCode: string }[] = [
   { code: "gunma", name: "群馬", rakutenCode: "10" },
 ];
 
-// サブエリア定義（住所に含まれるキーワードでマッチング）
+// サブエリア定義
 export const SUB_AREAS: Record<AreaCode, { code: string; name: string; keywords: string[] }[]> = {
   chiba: [
     { code: "uchibo", name: "内房・木更津", keywords: ["木更津", "君津", "富津", "袖ケ浦"] },
@@ -52,7 +52,7 @@ export const SUB_AREAS: Record<AreaCode, { code: string; name: string; keywords:
   ],
 };
 
-// 予算帯の定義
+// 予算帯
 export const BUDGET_RANGES = [
   { code: "under8000", label: "〜8,000円", min: 0, max: 8000 },
   { code: "8000to12000", label: "8,000〜12,000円", min: 8000, max: 12000 },
@@ -60,7 +60,7 @@ export const BUDGET_RANGES = [
   { code: "over18000", label: "18,000円〜", min: 18000, max: 999999 },
 ] as const;
 
-// 人数の定義
+// 人数
 export const GROUP_SIZES = [
   { code: "1", label: "1人（1人予約）" },
   { code: "2", label: "2人" },
@@ -68,7 +68,7 @@ export const GROUP_SIZES = [
   { code: "4plus", label: "4人以上" },
 ] as const;
 
-// レベルの定義
+// レベル
 export const LEVELS = [
   { code: "beginner", label: "初心者", description: "ラウンド経験が少ない / これから始めたい" },
   { code: "intermediate", label: "中級者", description: "スコア100前後" },
@@ -83,11 +83,22 @@ export const START_TIMES = [
   { code: "late", label: "10時台〜" },
 ] as const;
 
-// プレースタイル
+// ===== WANT条件（こだわり検索） =====
+
+// ラウンド数
+export const ROUND_OPTIONS = [
+  { code: "", label: "指定なし" },
+  { code: "0.5R", label: "9H (ハーフ)", description: "サクッと回りたい方に" },
+  { code: "1R", label: "18H (1ラウンド)", description: "しっかり1日楽しむ" },
+  { code: "1.5R", label: "27H (1.5ラウンド)", description: "たっぷり回りたい方に" },
+] as const;
+
+// プレースタイル（複数選択可）
 export const PLAY_STYLES = [
-  { code: "throughplay", label: "スループレー" },
-  { code: "cart", label: "乗用カートあり" },
-  { code: "lunch", label: "昼食付" },
-  { code: "twosome", label: "2サム保証" },
-  { code: "stay", label: "宿泊付" },
+  { code: "cart", label: "🚗 カート付き", field: "cart" },
+  { code: "lunch", label: "🍱 昼食付き", field: "lunch" },
+  { code: "twosome", label: "👥 2サム保証", field: "assu2sum" },
+  { code: "caddie", label: "🧑‍✈️ キャディ付き", field: "caddie" },
+  { code: "stay", label: "🏨 宿泊付き", field: "stay" },
+  { code: "drink", label: "🍺 ドリンク付き", field: "drink" },
 ] as const;

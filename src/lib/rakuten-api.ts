@@ -118,6 +118,17 @@ export async function searchGolfCourses(
 
 // ===== プラン検索（日付・予算フィルタ用） =====
 
+// プランフィルタ条件
+export type PlanFilter = {
+  round?: string;       // "0.5R", "1R", "1.5R"
+  cart?: boolean;       // カート付き
+  lunch?: boolean;      // 昼食付き
+  twosome?: boolean;    // 2サム保証
+  caddie?: boolean;     // キャディ付き
+  stay?: boolean;       // 宿泊付き
+  drink?: boolean;      // ドリンク付き
+};
+
 type PlanSearchParams = {
   areaCode?: number;
   playDate: string;
@@ -125,6 +136,7 @@ type PlanSearchParams = {
   maxPrice?: number;
   hits?: number;
   page?: number;
+  filter?: PlanFilter;
 };
 
 export async function searchPlans(params: PlanSearchParams): Promise<{
@@ -161,20 +173,41 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
   for (const item of (data.Items ?? []) as RakutenPlanSearchItem[]) {
     const courseId = String(item.golfCourseId);
 
-    // planInfoから最安プランを取得
-    const plans: PlanInfo[] = Array.isArray(item.planInfo)
+    // planInfoからプランを取得
+    let plans: PlanInfo[] = Array.isArray(item.planInfo)
       ? item.planInfo
       : item.planInfo
       ? [item.planInfo]
       : [];
 
+    // こだわり条件でフィルタ
+    const f = params.filter;
+    if (f) {
+      plans = plans.filter((plan) => {
+        if (f.round && plan.round !== f.round) return false;
+        if (f.cart && (!plan.cart || plan.cart === 0)) return false;
+        if (f.lunch && plan.lunch !== 1) return false;
+        if (f.twosome && plan.assu2sum !== 1) return false;
+        if (f.caddie && plan.caddie !== 1) return false;
+        if (f.stay && plan.stay !== 1) return false;
+        if (f.drink && plan.drink !== 1) return false;
+        return true;
+      });
+    }
+
+    // フィルタ後にプランが0件なら、このゴルフ場はスキップ
+    if (plans.length === 0) continue;
+
     // 最安値のプランを探す
     let cheapestPrice = Infinity;
     let cheapestPlanName = "";
+    let cheapestReserveUrl = "";
     for (const plan of plans) {
       if (plan.price && plan.price < cheapestPrice) {
         cheapestPrice = plan.price;
         cheapestPlanName = plan.planName ?? "";
+        // プラン直行予約URL
+        cheapestReserveUrl = plan.callInfo?.reservePageUrlPC ?? "";
       }
     }
     if (cheapestPrice === Infinity) cheapestPrice = 0;
@@ -195,8 +228,8 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
         holes: 18,
         tags: generateTags(item.evaluation, cheapestPrice, undefined, item.address),
         description: "",
-        // reserveCalUrlPC がプラン検索での予約URL（アフィリエイトリンク付き）
-        rakutenUrl: item.reserveCalUrlPC ?? "",
+        // プラン直行URL > コース予約URL の優先順
+        rakutenUrl: cheapestReserveUrl || item.reserveCalUrlPC || "",
         recommend_reason: cheapestPlanName,
       });
     } else {
@@ -302,4 +335,12 @@ type PlanInfo = {
   round?: string;
   cart?: number;
   lunch?: number;
+  assu2sum?: number;
+  caddie?: number;
+  stay?: number;
+  drink?: number;
+  callInfo?: {
+    reservePageUrlPC?: string;
+    stockCount?: number;
+  };
 };

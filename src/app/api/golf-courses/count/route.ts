@@ -29,6 +29,8 @@ export async function GET(request: NextRequest) {
   const subArea = params.get("subArea") ?? "";
   const budget = params.get("budget") ?? "";
   const date = params.get("date") ?? "";
+  const round = params.get("round") ?? "";
+  const playStyles = params.get("playStyles") ?? "";
 
   if (!area || !process.env.RAKUTEN_APP_ID || !process.env.RAKUTEN_ACCESS_KEY) {
     return NextResponse.json({ count: 0 });
@@ -36,6 +38,19 @@ export async function GET(request: NextRequest) {
 
   try {
     const rakutenAreaCode = AREA_TO_RAKUTEN[area];
+
+    // こだわり条件
+    const styles = playStyles.split(",").filter(Boolean);
+    const planFilter = {
+      round: round || undefined,
+      cart: styles.includes("cart") || undefined,
+      lunch: styles.includes("lunch") || undefined,
+      twosome: styles.includes("twosome") || undefined,
+      caddie: styles.includes("caddie") || undefined,
+      stay: styles.includes("stay") || undefined,
+      drink: styles.includes("drink") || undefined,
+    };
+    const hasFilter = round || styles.length > 0;
 
     if (date) {
       // プラン検索
@@ -46,6 +61,7 @@ export async function GET(request: NextRequest) {
         minPrice: budgetRange.min,
         maxPrice: budgetRange.max,
         hits: 30,
+        filter: hasFilter ? planFilter : undefined,
       });
 
       let count = result.courses.length;

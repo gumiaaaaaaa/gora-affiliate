@@ -84,6 +84,8 @@ export async function GET(request: NextRequest) {
   const budget = params.get("budget") ?? "";
   const level = params.get("level") ?? "";
   const date = params.get("date") ?? "";
+  const round = params.get("round") ?? "";
+  const playStyles = params.get("playStyles") ?? "";
 
   // APIキーが設定されていない場合はモックデータを返す
   if (!process.env.RAKUTEN_APP_ID || !process.env.RAKUTEN_ACCESS_KEY) {
@@ -94,6 +96,19 @@ export async function GET(request: NextRequest) {
   try {
     const rakutenAreaCode = AREA_TO_RAKUTEN[area];
 
+    // こだわり条件を構築
+    const styles = playStyles.split(",").filter(Boolean);
+    const planFilter = {
+      round: round || undefined,
+      cart: styles.includes("cart") || undefined,
+      lunch: styles.includes("lunch") || undefined,
+      twosome: styles.includes("twosome") || undefined,
+      caddie: styles.includes("caddie") || undefined,
+      stay: styles.includes("stay") || undefined,
+      drink: styles.includes("drink") || undefined,
+    };
+    const hasFilter = round || styles.length > 0;
+
     // 日付が指定されている場合はプラン検索
     if (date) {
       const budgetRange = BUDGET_TO_RANGE[budget] ?? {};
@@ -103,6 +118,7 @@ export async function GET(request: NextRequest) {
         minPrice: budgetRange.min,
         maxPrice: budgetRange.max,
         hits: 30,
+        filter: hasFilter ? planFilter : undefined,
       });
 
       // サブエリアフィルタ

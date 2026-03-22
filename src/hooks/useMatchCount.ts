@@ -8,28 +8,24 @@ export function useMatchCount(params: {
   subArea: string;
   budget: string;
   date: string;
+  round?: string;
+  playStyles?: string[];
 }) {
   const [count, setCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const playStylesStr = params.playStyles?.join(",") ?? "";
+
   useEffect(() => {
-    // エリア未選択なら件数表示なし
     if (!params.area) {
       setCount(null);
       return;
     }
 
-    // 前のリクエストをキャンセル
-    if (abortRef.current) {
-      abortRef.current.abort();
-    }
-
-    // デバウンス（500ms待ってからAPI呼び出し）
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-    }
+    if (abortRef.current) abortRef.current.abort();
+    if (timerRef.current) clearTimeout(timerRef.current);
 
     timerRef.current = setTimeout(async () => {
       const controller = new AbortController();
@@ -42,6 +38,8 @@ export function useMatchCount(params: {
         if (params.subArea) query.set("subArea", params.subArea);
         if (params.budget) query.set("budget", params.budget);
         if (params.date) query.set("date", params.date);
+        if (params.round) query.set("round", params.round);
+        if (playStylesStr) query.set("playStyles", playStylesStr);
 
         const res = await fetch(`/api/golf-courses/count?${query.toString()}`, {
           signal: controller.signal,
@@ -60,7 +58,7 @@ export function useMatchCount(params: {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [params.area, params.subArea, params.budget, params.date]);
+  }, [params.area, params.subArea, params.budget, params.date, params.round, playStylesStr]);
 
   return { count, loading };
 }
