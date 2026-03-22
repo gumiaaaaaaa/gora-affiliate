@@ -308,7 +308,9 @@ export default async function CourseDetailPage({
         {/* サイト別最安値比較 */}
         <PriceComparison
           courseId={id}
+          courseName={name}
           rakutenPrice={weekdayMin || holidayMin || 0}
+          rakutenPlanName={weekdayMin > 0 ? `平日最安 ¥${weekdayMin.toLocaleString()}〜` : ""}
           rakutenUrl={reserveUrl}
         />
 

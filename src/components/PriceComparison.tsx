@@ -27,11 +27,15 @@ const SITE_LABELS: Record<string, string> = {
 
 export default function PriceComparison({
   courseId,
+  courseName,
   rakutenPrice,
+  rakutenPlanName,
   rakutenUrl,
 }: {
   courseId: string;
+  courseName: string;
   rakutenPrice: number;
+  rakutenPlanName?: string;
   rakutenUrl: string;
 }) {
   const [comparisons, setComparisons] = useState<Comparison[]>([]);
@@ -53,7 +57,7 @@ export default function PriceComparison({
       ? [{
           site: "rakuten",
           siteName: "楽天GORA",
-          planName: "",
+          planName: rakutenPlanName ?? "",
           minPrice: rakutenPrice,
           reserveUrl: rakutenUrl,
           scrapedAt: "",
@@ -86,6 +90,7 @@ export default function PriceComparison({
               href={item.reserveUrl}
               target="_blank"
               rel="noopener noreferrer"
+              {...(item.site === "jalan" ? { "data-vc-lc": "true" } : {})}
               className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors group"
             >
               <div className="flex-1 min-w-0">
