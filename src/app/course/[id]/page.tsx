@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import ShareButtons from "@/components/ShareButtons";
 
 // ゴルフ場詳細データ取得
 async function getCourseDetail(id: string) {
@@ -240,6 +241,14 @@ export default async function CourseDetailPage({
             </a>
           </div>
         )}
+
+        {/* シェアボタン */}
+        <div className="flex justify-center my-6">
+          <ShareButtons
+            url={`https://golf-plat.com/course/${id}`}
+            title={`${name} | 関東ゴルフ場ナビ`}
+          />
+        </div>
 
         {/* 下部CTA */}
         <div className="text-center mt-8">

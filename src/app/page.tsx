@@ -72,7 +72,7 @@ export default function HomePage() {
           {AREAS.map((area) => (
             <Link
               key={area.code}
-              href={`/shindan?area=${area.code}`}
+              href={`/area/${area.code}`}
               className="flex flex-col items-center justify-center bg-white border border-gray-200 rounded-xl py-5 px-2 shadow-sm hover:border-golf-green hover:shadow-md hover:-translate-y-1 transition-all duration-200 text-center group"
             >
               <span className="text-3xl mb-2">{AREA_ICONS[area.code] ?? "🗾"}</span>
