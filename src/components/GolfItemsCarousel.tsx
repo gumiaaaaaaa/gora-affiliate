@@ -133,7 +133,7 @@ export default function GolfItemsCarousel() {
                     {item.imageUrl && (
                       <Image
                         src={item.imageUrl}
-                        alt={item.name}
+                        alt={`${item.name || "ゴルフ用品"} 商品画像`}
                         width={150}
                         height={150}
                         className="object-contain max-h-40 group-hover:scale-105 transition-transform"

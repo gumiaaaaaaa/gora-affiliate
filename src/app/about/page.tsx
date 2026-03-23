@@ -5,11 +5,32 @@ export const metadata: Metadata = {
   title: "運営者情報",
   description: "ゴルプラ比較の運営者情報。関東エリアのゴルフ場を最安値で比較できるサイトの運営について。",
   alternates: { canonical: "/about" },
+  openGraph: {
+    title: "運営者情報 | ゴルプラ比較",
+    url: "/about",
+  },
 };
 
 export default function AboutPage() {
+  const aboutJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    name: "ゴルプラ比較 運営者情報",
+    url: "https://golf-plat.com/about",
+    mainEntity: {
+      "@type": "Organization",
+      name: "ゴルプラ比較",
+      url: "https://golf-plat.com",
+      foundingDate: "2026-03",
+    },
+  };
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutJsonLd).replace(/<\//g, "<\\/") }}
+      />
       <nav className="text-xs text-gray-400 mb-6">
         <Link href="/" className="hover:text-golf-green">トップ</Link>
         <span className="mx-1">›</span>
