@@ -236,7 +236,7 @@ export default function GolfCourseCard({ course, rank }: Props) {
             </a>
           )}
 
-          {/* PGM系列でデータがない場合 */}
+          {/* PGM系列でデータがない場合（1つだけ表示） */}
           {isPGM && !comparisons.some((c) => c.site === "pgm") && (
             <a
               href="https://booking.pacificgolf.co.jp/"
@@ -244,13 +244,13 @@ export default function GolfCourseCard({ course, rank }: Props) {
               rel="noopener noreferrer"
               className="flex items-center justify-between px-3 py-2 hover:bg-emerald-50/50 transition-colors"
             >
-              <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">PGM</span>
-              <span className="text-xs text-gray-400">料金を確認 ›</span>
+              <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">PGM公式</span>
+              <span className="text-xs text-orange-500">安い場合あり ›</span>
             </a>
           )}
 
-          {/* アコーディアデータがなければリンクのみ */}
-          {isAccordia && !comparisons.some((c) => c.site === "accordia") && (
+          {/* アコーディアデータがなければリンクのみ（PGM系は除外） */}
+          {isAccordia && !isPGM && !comparisons.some((c) => c.site === "accordia") && (
             <a
               href="https://reserve.accordiagolf.com/"
               target="_blank"
