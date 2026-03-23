@@ -25,9 +25,13 @@ export default function Footer() {
               <p className="text-gray-300 font-semibold mb-1 text-xs uppercase tracking-wider">Menu</p>
               <Link href="/" className="hover:text-white transition-colors">トップ</Link>
               <Link href="/shindan" className="hover:text-white transition-colors">ゴルフ場検索</Link>
+              <Link href="/blog" className="hover:text-white transition-colors">コラム</Link>
+              <Link href="/faq" className="hover:text-white transition-colors">よくある質問</Link>
             </div>
             <div className="flex flex-col gap-2.5 text-sm">
-              <p className="text-gray-300 font-semibold mb-1 text-xs uppercase tracking-wider">Legal</p>
+              <p className="text-gray-300 font-semibold mb-1 text-xs uppercase tracking-wider">Info</p>
+              <Link href="/about" className="hover:text-white transition-colors">運営者情報</Link>
+              <Link href="/contact" className="hover:text-white transition-colors">お問い合わせ</Link>
               <Link href="/privacy" className="hover:text-white transition-colors">プライバシーポリシー</Link>
               <Link href="/tokushoho" className="hover:text-white transition-colors">特定商取引法に基づく表記</Link>
             </div>
