@@ -8,6 +8,7 @@ export type BlogPost = {
   date: string;
   category: string;
   tags: string[];
+  image: string;
   content: string;
 };
 
@@ -36,6 +37,8 @@ function markdownToHtml(md: string): string {
     // 見出し
     .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-gray-800 mt-8 mb-3">$1</h3>')
     .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-gray-800 mt-10 mb-4">$1</h2>')
+    // リンク
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-golf-green hover:underline">$1</a>')
     // 太字
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     // リスト
@@ -62,6 +65,7 @@ export function getAllPosts(): BlogPost[] {
       date: meta.date ?? "",
       category: meta.category ?? "",
       tags: meta.tags ? meta.tags.split(",").map((t) => t.trim()) : [],
+      image: meta.image ?? "",
       content: markdownToHtml(content),
     });
   }
@@ -82,6 +86,7 @@ export function getPostBySlug(slug: string): BlogPost | null {
     date: meta.date ?? "",
     category: meta.category ?? "",
     tags: meta.tags ? meta.tags.split(",").map((t) => t.trim()) : [],
+    image: meta.image ?? "",
     content: markdownToHtml(content),
   };
 }

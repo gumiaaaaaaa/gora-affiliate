@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getPostBySlug, getAllPosts } from "@/lib/blog";
+import ShareButtons from "@/components/ShareButtons";
 
 export async function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }));
@@ -107,6 +108,16 @@ export default async function BlogPostPage({
           </h1>
         </div>
 
+        {post.image && (
+          <div className="rounded-2xl overflow-hidden mb-8">
+            <img
+              src={post.image}
+              alt={`${post.title} アイキャッチ画像`}
+              className="w-full h-64 md:h-80 object-cover"
+            />
+          </div>
+        )}
+
         <div
           className="prose prose-sm max-w-none"
           dangerouslySetInnerHTML={{ __html: post.content }}
@@ -121,6 +132,10 @@ export default async function BlogPostPage({
             ))}
           </div>
         )}
+        {/* シェアボタン */}
+        <div className="mt-8 pt-6 border-t border-gray-100">
+          <ShareButtons url={`/blog/${slug}`} title={post.title} />
+        </div>
       </article>
 
       {/* CTA */}

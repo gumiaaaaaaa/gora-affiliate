@@ -6,7 +6,8 @@ type Props = {
 };
 
 export default function ShareButtons({ url, title }: Props) {
-  const encodedUrl = encodeURIComponent(url);
+  const fullUrl = url.startsWith("http") ? url : `https://golf-plat.com${url}`;
+  const encodedUrl = encodeURIComponent(fullUrl);
   const encodedTitle = encodeURIComponent(title);
 
   return (
@@ -49,7 +50,7 @@ export default function ShareButtons({ url, title }: Props) {
       {/* コピー */}
       <button
         onClick={() => {
-          navigator.clipboard.writeText(url);
+          navigator.clipboard.writeText(fullUrl);
           alert("URLをコピーしました！");
         }}
         className="w-9 h-9 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 text-sm hover:bg-gray-300 transition-colors"

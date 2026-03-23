@@ -37,8 +37,17 @@ export default function BlogPage() {
             <Link
               key={post.slug}
               href={`/blog/${post.slug}`}
-              className="block bg-white rounded-2xl border border-gray-100 shadow-card hover:shadow-card-hover transition-all p-6 group"
+              className="block bg-white rounded-2xl border border-gray-100 shadow-card hover:shadow-card-hover transition-all overflow-hidden group"
             >
+              {post.image && (
+                <img
+                  src={post.image}
+                  alt={`${post.title} アイキャッチ画像`}
+                  className="w-full h-48 object-cover"
+                  loading="lazy"
+                />
+              )}
+              <div className="p-6">
               <div className="flex items-center gap-3 mb-3">
                 {post.category && (
                   <span className="bg-golf-green/10 text-golf-green text-xs font-semibold px-2.5 py-1 rounded-full">
@@ -62,6 +71,7 @@ export default function BlogPage() {
                   ))}
                 </div>
               )}
+              </div>
             </Link>
           ))}
         </div>
