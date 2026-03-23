@@ -148,7 +148,14 @@ export async function generateMetadata({
 
   return {
     title: `${course.golfCourseName} | 料金・口コミ・予約`,
-    description: `${course.golfCourseName}の料金、口コミ、コース情報。${course.address}。楽天GORAで最安値予約。`,
+    description: `${course.golfCourseName}の料金、口コミ、コース情報。${course.address}。楽天GORA・じゃらん・公式サイトの最安値を比較。`,
+    alternates: { canonical: `/course/${id}` },
+    openGraph: {
+      title: `${course.golfCourseName} | ゴルプラ比較`,
+      description: `${course.golfCourseName}の最安値プランを比較。${course.address}。`,
+      url: `/course/${id}`,
+      images: course.golfCourseImageUrl ? [{ url: course.golfCourseImageUrl }] : [],
+    },
   };
 }
 
@@ -227,7 +234,7 @@ export default async function CourseDetailPage({
           <div className="rounded-2xl overflow-hidden mb-6">
             <Image
               src={imageUrl}
-              alt={name}
+              alt={`${name} ゴルフ場 コース写真`}
               width={800}
               height={400}
               className="w-full h-64 md:h-80 object-cover"

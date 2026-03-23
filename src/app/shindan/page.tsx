@@ -105,9 +105,9 @@ function SearchForm() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* ヘッダー */}
       <div className="text-center mb-8">
-        <h1 className="text-2xl font-bold text-golf-green">⛳ ゴルフ場検索</h1>
+        <h1 className="text-2xl font-bold text-golf-green">⛳ 関東ゴルフ場 最安値検索</h1>
         <p className="text-gray-500 text-sm mt-1">
-          条件を選んで、ぴったりのゴルフ場を見つけましょう
+          エリア・予算・プレースタイルから最安値プランを比較
         </p>
       </div>
 

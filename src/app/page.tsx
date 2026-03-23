@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { AREAS } from "@/constants/areas";
 import HeroSlider from "@/components/HeroSlider";
 import QuickSearch from "@/components/QuickSearch";
 import GolfItemsCarousel from "@/components/GolfItemsCarousel";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "ゴルプラ比較 | 関東ゴルフ場の最安値プラン比較",
+    description: "関東エリアのゴルフ場を楽天GORA・じゃらん・アコーディア・PGMで最安値比較。エリア・予算・プレースタイルから最適なゴルフ場が見つかる。",
+    url: "/",
+  },
+};
 
 const PURPOSES = [
   { icon: "🌱", label: "初心者向け", description: "フラットで回りやすいコース", query: "level=beginner" },

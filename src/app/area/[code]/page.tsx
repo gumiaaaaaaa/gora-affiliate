@@ -48,6 +48,12 @@ export async function generateMetadata({
   return {
     title: `${area.name}のゴルフ場一覧 | おすすめ・料金・予約`,
     description: `${area.name}エリアのおすすめゴルフ場一覧。料金比較・口コミ評価で探せます。楽天GORAで最安値予約。${AREA_DESCRIPTIONS[code] ?? ""}`,
+    alternates: { canonical: `/area/${code}` },
+    openGraph: {
+      title: `${area.name}のゴルフ場一覧 | ゴルプラ比較`,
+      description: `${area.name}エリアのゴルフ場を最安値比較。楽天GORA・じゃらん・公式サイトの料金を比較。`,
+      url: `/area/${code}`,
+    },
   };
 }
 

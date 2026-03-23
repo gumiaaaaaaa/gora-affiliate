@@ -46,9 +46,6 @@ export const metadata: Metadata = {
     description: siteDescription,
   },
   metadataBase: new URL(siteUrl),
-  alternates: {
-    canonical: "/",
-  },
   robots: {
     index: true,
     follow: true,
