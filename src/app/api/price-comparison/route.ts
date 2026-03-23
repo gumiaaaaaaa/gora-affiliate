@@ -70,8 +70,8 @@ export async function GET(request: NextRequest) {
       const cleanName = normalizeName(courseName);
       if (cleanName.length < 2) return NextResponse.json({ comparisons: [] });
 
-      // コース名の主要部分で検索
-      const searchKeyword = cleanName.slice(0, 10);
+      // コース名の主要部分で検索（LIKEワイルドカードをエスケープ）
+      const searchKeyword = cleanName.slice(0, 10).replace(/%/g, "\\%").replace(/_/g, "\\_");
       const result = await supabase
         .from("price_comparison")
         .select("site, site_name, plan_name, min_price, reserve_url, scraped_at, golf_course_name")

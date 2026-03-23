@@ -3,6 +3,16 @@ import { Resend } from "resend";
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
 const FROM_EMAIL = "ゴルプラ比較 <onboarding@resend.dev>";
 
+// HTMLエスケープ（XSS/injection防止）
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // Resendクライアントを遅延初期化（APIキー未設定時のビルドエラー防止）
 function getResend() {
   const apiKey = process.env.RESEND_API_KEY;
@@ -42,7 +52,7 @@ export async function sendPriceDropEmail(params: PriceDropEmailParams) {
 
         <div style="background: white; border-radius: 12px; padding: 24px; border: 1px solid #e5e7eb;">
           <h3 style="margin: 0 0 16px; color: #333; font-size: 16px;">
-            ${params.courseName}
+            ${escapeHtml(params.courseName)}
           </h3>
 
           <table style="width: 100%; margin-bottom: 16px;">
@@ -139,7 +149,7 @@ export async function sendRegistrationConfirmEmail(params: RegistrationConfirmPa
           <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
             <tr style="border-bottom: 1px solid #f3f4f6;">
               <td style="padding: 12px 0; color: #999; width: 100px;">ゴルフ場</td>
-              <td style="padding: 12px 0; font-weight: bold; color: #333;">${params.courseName}</td>
+              <td style="padding: 12px 0; font-weight: bold; color: #333;">${escapeHtml(params.courseName)}</td>
             </tr>
             <tr style="border-bottom: 1px solid #f3f4f6;">
               <td style="padding: 12px 0; color: #999;">通知条件</td>

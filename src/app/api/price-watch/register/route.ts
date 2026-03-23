@@ -10,6 +10,13 @@ function isValidEmail(email: string): boolean {
 }
 
 export async function POST(request: NextRequest) {
+  // CSRF対策: Origin/Refererヘッダーを検証
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
+  const origin = request.headers.get("origin") ?? request.headers.get("referer") ?? "";
+  if (!origin.startsWith(siteUrl) && !origin.startsWith("http://localhost")) {
+    return NextResponse.json({ error: "不正なリクエストです" }, { status: 403 });
+  }
+
   // レート制限: 1IPあたり5回/時間
   const ip = getClientIp(request);
   if (!checkRateLimit(`register:${ip}`, { maxRequests: 5, windowMs: 3600000 })) {

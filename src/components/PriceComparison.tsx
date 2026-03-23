@@ -98,7 +98,7 @@ export default function PriceComparison({
               key={item.site}
               href={item.site === "jalan" ? toJalanAffiliateUrl(item.reserveUrl) : item.reserveUrl}
               target="_blank"
-              rel={item.site === "jalan" ? "nofollow" : "noopener noreferrer"}
+              rel="nofollow noopener noreferrer"
               className="flex items-center justify-between px-5 py-3.5 hover:bg-gray-50 transition-colors group"
             >
               <div className="flex-1 min-w-0">
