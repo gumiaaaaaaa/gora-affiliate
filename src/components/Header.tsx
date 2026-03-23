@@ -20,19 +20,11 @@ export default function Header() {
         </Link>
 
         {/* PC用ナビ */}
-        <nav className="hidden md:flex items-center gap-8 text-sm">
-          <Link
-            href="/"
-            className="text-gray-500 hover:text-golf-green transition-colors font-medium"
-          >
-            トップ
-          </Link>
-          <Link
-            href="/shindan"
-            className="text-gray-500 hover:text-golf-green transition-colors font-medium"
-          >
-            ゴルフ場検索
-          </Link>
+        <nav className="hidden md:flex items-center gap-6 text-sm">
+          <Link href="/" className="text-gray-500 hover:text-golf-green transition-colors font-medium">トップ</Link>
+          <Link href="/shindan" className="text-gray-500 hover:text-golf-green transition-colors font-medium">ゴルフ場検索</Link>
+          <Link href="/blog" className="text-gray-500 hover:text-golf-green transition-colors font-medium">コラム</Link>
+          <Link href="/faq" className="text-gray-500 hover:text-golf-green transition-colors font-medium">FAQ</Link>
           <Link
             href="/shindan"
             className="bg-golf-green text-white px-5 py-2 rounded-lg hover:bg-golf-light transition-colors font-semibold text-sm"
@@ -56,27 +48,12 @@ export default function Header() {
       {/* モバイルメニュー */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 px-4 py-4 flex flex-col gap-3">
-          <Link
-            href="/"
-            onClick={() => setMenuOpen(false)}
-            className="text-gray-600 hover:text-golf-green py-2 font-medium"
-          >
-            トップ
-          </Link>
-          <Link
-            href="/shindan"
-            onClick={() => setMenuOpen(false)}
-            className="text-gray-600 hover:text-golf-green py-2 font-medium"
-          >
-            ゴルフ場検索
-          </Link>
-          <Link
-            href="/shindan"
-            onClick={() => setMenuOpen(false)}
-            className="bg-golf-green text-white px-5 py-3 rounded-lg text-center font-semibold"
-          >
-            検索する
-          </Link>
+          <Link href="/" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-golf-green py-2 font-medium">トップ</Link>
+          <Link href="/shindan" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-golf-green py-2 font-medium">ゴルフ場検索</Link>
+          <Link href="/blog" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-golf-green py-2 font-medium">コラム</Link>
+          <Link href="/faq" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-golf-green py-2 font-medium">FAQ</Link>
+          <Link href="/contact" onClick={() => setMenuOpen(false)} className="text-gray-600 hover:text-golf-green py-2 font-medium">お問い合わせ</Link>
+          <Link href="/shindan" onClick={() => setMenuOpen(false)} className="bg-golf-green text-white px-5 py-3 rounded-lg text-center font-semibold">検索する</Link>
         </div>
       )}
     </header>
