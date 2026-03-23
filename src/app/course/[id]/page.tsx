@@ -156,6 +156,12 @@ export async function generateMetadata({
       url: `/course/${id}`,
       images: course.golfCourseImageUrl ? [{ url: course.golfCourseImageUrl }] : [],
     },
+    twitter: {
+      card: "summary_large_image",
+      title: `${course.golfCourseName} | ゴルプラ比較`,
+      description: `${course.golfCourseName}の最安値プランを比較。${course.address}。`,
+      images: course.golfCourseImageUrl ? [course.golfCourseImageUrl] : [],
+    },
   };
 }
 
@@ -211,12 +217,27 @@ export default async function CourseDetailPage({
     numberOfHoles: holeCount,
   };
 
+  // パンくずリスト構造化データ
+  const breadcrumbLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "トップ", item: "https://golf-plat.com" },
+      { "@type": "ListItem", position: 2, name: "ゴルフ場検索", item: "https://golf-plat.com/shindan" },
+      { "@type": "ListItem", position: 3, name: name },
+    ],
+  };
+
   return (
     <>
       {/* 構造化データ */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
       />
 
       <div className="max-w-4xl mx-auto px-4 py-8">

@@ -6,11 +6,17 @@ import QuickSearch from "@/components/QuickSearch";
 import GolfItemsCarousel from "@/components/GolfItemsCarousel";
 
 export const metadata: Metadata = {
+  description: "関東エリア（東京・千葉・埼玉・神奈川・茨城・栃木・群馬）のゴルフ場を楽天GORA・じゃらん・アコーディア・PGMで最安値比較。エリア・予算・プレースタイルから最適なゴルフ場が見つかる。",
   alternates: { canonical: "/" },
   openGraph: {
     title: "ゴルプラ比較 | 関東ゴルフ場の最安値プラン比較",
     description: "関東エリアのゴルフ場を楽天GORA・じゃらん・アコーディア・PGMで最安値比較。エリア・予算・プレースタイルから最適なゴルフ場が見つかる。",
     url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ゴルプラ比較 | 関東ゴルフ場の最安値プラン比較",
+    description: "関東7都県のゴルフ場を最安値で比較。楽天GORA・じゃらん・公式サイトのプラン料金を一括比較。",
   },
 };
 
@@ -27,8 +33,36 @@ const AREA_ICONS: Record<string, string> = {
 };
 
 export default function HomePage() {
+  // JSON-LD構造化データ（WebSite + Organization + SearchAction）
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        name: "ゴルプラ比較",
+        url: "https://golf-plat.com",
+        description: "関東エリアのゴルフ場を最安値で比較できるサイト",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: "https://golf-plat.com/shindan?keyword={search_term_string}",
+          "query-input": "required name=search_term_string",
+        },
+      },
+      {
+        "@type": "Organization",
+        name: "ゴルプラ比較",
+        url: "https://golf-plat.com",
+        logo: "https://golf-plat.com/favicon.ico",
+      },
+    ],
+  };
+
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ヒーロー */}
       <section className="text-white relative overflow-hidden">
         <HeroSlider />
@@ -39,6 +73,7 @@ export default function HomePage() {
           </div>
 
           <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
+            <span className="sr-only">ゴルプラ比較 - </span>
             最安値のゴルフ場が
             <br />
             すぐに見つかる
@@ -184,6 +219,32 @@ export default function HomePage() {
               <p className="text-xs text-gray-400 mt-1 font-medium">利用料金</p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* 人気エリアのゴルフ場 内部リンク */}
+      <section className="max-w-6xl mx-auto px-4 py-16">
+        <h2 className="text-xl font-bold text-gray-800 mb-6 text-center">人気エリアのゴルフ場を探す</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+          {[
+            { href: "/area/chiba", label: "千葉県のゴルフ場", desc: "アクアライン圏内の人気コース" },
+            { href: "/area/ibaraki", label: "茨城県のゴルフ場", desc: "コスパ抜群のコースが多数" },
+            { href: "/area/tochigi", label: "栃木県のゴルフ場", desc: "那須・日光の自然豊かなコース" },
+            { href: "/area/saitama", label: "埼玉県のゴルフ場", desc: "都心からアクセス良好" },
+            { href: "/area/kanagawa", label: "神奈川県のゴルフ場", desc: "湘南・箱根エリア" },
+            { href: "/area/gunma", label: "群馬県のゴルフ場", desc: "温泉付きリゾートコース" },
+            { href: "/area/tokyo", label: "東京都のゴルフ場", desc: "都内・多摩エリア" },
+            { href: "/shindan", label: "条件で検索する →", desc: "予算・ラウンド数で絞り込み" },
+          ].map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="block bg-white border border-gray-100 rounded-xl p-4 hover:border-golf-green/30 hover:shadow-md transition-all"
+            >
+              <span className="font-semibold text-golf-green">{link.label}</span>
+              <span className="block text-xs text-gray-400 mt-1">{link.desc}</span>
+            </Link>
+          ))}
         </div>
       </section>
 
