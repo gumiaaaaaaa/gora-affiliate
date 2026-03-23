@@ -5,9 +5,15 @@ import Link from "next/link";
 import Image from "next/image";
 import type { GolfCourse } from "@/types/golf-course";
 
-// TODO: バリューコマース審査通過後にアフィリエイトリンク化
-function toJalanAffiliateUrl(keyword: string): string {
-  return `https://golf-jalan.net/search/?keyword=${encodeURIComponent(keyword)}`;
+// じゃらんゴルフ検索URL（コース名のブランド名を除去して検索精度UP）
+function toJalanAffiliateUrl(courseName: string): string {
+  const clean = courseName
+    .replace(/【.*?】/g, "")
+    .replace(/\s*（.*?）/g, "")
+    .replace(/\s*\(.*?\)/g, "")
+    .replace(/〔.*?〕/g, "")
+    .trim();
+  return `https://golf-jalan.net/search/?keyword=${encodeURIComponent(clean)}`;
 }
 
 type ComparisonPrice = {
@@ -236,21 +242,8 @@ export default function GolfCourseCard({ course, rank }: Props) {
             </a>
           )}
 
-          {/* PGM系列でデータがない場合（1つだけ表示） */}
-          {isPGM && !comparisons.some((c) => c.site === "pgm") && (
-            <a
-              href="https://booking.pacificgolf.co.jp/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between px-3 py-2 hover:bg-emerald-50/50 transition-colors"
-            >
-              <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">PGM公式</span>
-              <span className="text-xs text-orange-500">安い場合あり ›</span>
-            </a>
-          )}
-
-          {/* アコーディアデータがなければリンクのみ（PGM系は除外） */}
-          {isAccordia && !isPGM && !comparisons.some((c) => c.site === "accordia") && (
+          {/* アコーディアデータがなければリンクのみ */}
+          {isAccordia && !comparisons.some((c) => c.site === "accordia") && (
             <a
               href="https://reserve.accordiagolf.com/"
               target="_blank"
@@ -258,7 +251,7 @@ export default function GolfCourseCard({ course, rank }: Props) {
               className="flex items-center justify-between px-3 py-2 hover:bg-blue-50/50 transition-colors border-b border-gray-50"
             >
               <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">アコーディア</span>
-              <span className="text-xs text-gray-400">料金を確認 ›</span>
+              <span className="text-xs text-orange-500">安い場合あり ›</span>
             </a>
           )}
 
@@ -271,7 +264,7 @@ export default function GolfCourseCard({ course, rank }: Props) {
               className="flex items-center justify-between px-3 py-2 hover:bg-emerald-50/50 transition-colors"
             >
               <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">PGM</span>
-              <span className="text-xs text-gray-400">料金を確認 ›</span>
+              <span className="text-xs text-orange-500">安い場合あり ›</span>
             </a>
           )}
         </div>
