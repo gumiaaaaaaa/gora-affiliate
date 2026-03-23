@@ -21,11 +21,19 @@ const AREA_DESCRIPTIONS: Record<string, string> = {
   gunma: "草津・渋川の温泉付きゴルフが楽しめる。自然豊かな環境でリフレッシュ。",
 };
 
-// APIからゴルフ場データ取得
+// APIからゴルフ場データ取得（プラン検索: 直近の平日日付を使用）
+function getNextWeekday(): string {
+  const d = new Date();
+  d.setDate(d.getDate() + 1); // 明日から
+  while (d.getDay() === 0 || d.getDay() === 6) d.setDate(d.getDate() + 1); // 平日まで進める
+  return d.toISOString().split("T")[0];
+}
+
 async function getAreaCourses(areaCode: string): Promise<GolfCourse[]> {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://golf-plat.com";
+  const date = getNextWeekday();
   try {
-    const res = await fetch(`${siteUrl}/api/golf-courses?area=${areaCode}`, {
+    const res = await fetch(`${siteUrl}/api/golf-courses?area=${areaCode}&date=${date}&hits=20`, {
       next: { revalidate: 3600 },
     });
     const data = await res.json();
