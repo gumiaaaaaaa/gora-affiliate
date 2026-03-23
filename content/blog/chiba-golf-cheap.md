@@ -4,7 +4,7 @@ description: "千葉県で安いゴルフ場をランキング形式で紹介。
 date: "2026-03-23"
 category: "エリアガイド"
 tags: "千葉,格安,コスパ,平日,ランキング"
-image: "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=400&fit=crop"
+image: "/images/blog/chiba-golf-cheap.jpg"
 ---
 
 ## 千葉県はゴルフ天国！安い理由とは？

@@ -4,7 +4,7 @@ description: "埼玉県で安いゴルフ場をランキング形式で紹介。
 date: "2026-03-23"
 category: "エリアガイド"
 tags: "埼玉,格安,ランキング,圏央道,関越道"
-image: "https://images.unsplash.com/photo-1587174486073-ae5e5cff23aa?w=800&h=400&fit=crop"
+image: "/images/blog/saitama-golf-cheap.jpg"
 ---
 
 ## 埼玉ゴルフ場の特徴と料金相場

@@ -4,7 +4,7 @@ description: "ゴルフを始めたばかりの方向けに、関東エリアで
 date: "2026-03-23"
 category: "初心者ガイド"
 tags: "初心者,関東,おすすめ,コスパ"
-image: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=800&h=400&fit=crop"
+image: "/images/blog/beginner-guide-kanto.jpg"
 ---
 
 ## ゴルフ初心者がコースを選ぶときのポイント

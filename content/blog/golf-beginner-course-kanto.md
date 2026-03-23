@@ -4,7 +4,7 @@ description: "ゴルフ初心者が最初に行くべき関東のコースを厳
 date: "2026-03-23"
 category: "初心者ガイド"
 tags: "初心者,関東,コース,フラット,おすすめ"
-image: "https://images.unsplash.com/photo-1593111774240-d529f12cf4bb?w=800&h=400&fit=crop"
+image: "/images/blog/golf-beginner-course-kanto.jpg"
 ---
 
 ## 初心者がコースを選ぶときに重視すべき3つの条件

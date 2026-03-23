@@ -4,7 +4,7 @@ description: "茨城のゴルフ場はなぜ安いのか？その理由を解説
 date: "2026-03-23"
 category: "エリアガイド"
 tags: "茨城,格安,常磐道,コスパ,安い理由"
-image: "https://images.unsplash.com/photo-1600183952086-a5f3dabb0a2f?w=800&h=400&fit=crop"
+image: "/images/blog/ibaraki-golf-cheap.jpg"
 ---
 
 ## 茨城のゴルフ場が安い3つの理由
