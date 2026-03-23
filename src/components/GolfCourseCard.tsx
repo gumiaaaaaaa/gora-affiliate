@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { GolfCourse } from "@/types/golf-course";
@@ -6,6 +9,19 @@ import type { GolfCourse } from "@/types/golf-course";
 function toJalanAffiliateUrl(keyword: string): string {
   return `https://golf-jalan.net/search/?keyword=${encodeURIComponent(keyword)}`;
 }
+
+type ComparisonPrice = {
+  site: string;
+  siteName: string;
+  minPrice: number;
+  reserveUrl: string;
+};
+
+const SITE_COLORS: Record<string, string> = {
+  jalan: "bg-orange-500",
+  accordia: "bg-blue-500",
+  pgm: "bg-emerald-500",
+};
 
 type Props = {
   course: GolfCourse;
@@ -28,6 +44,15 @@ export default function GolfCourseCard({ course, rank }: Props) {
   const isAccordia = course.name.includes("アコーディア");
   const isPGM = course.name.includes("ＰＧＭ") || course.name.includes("PGM");
   const cleanName = course.name.replace(/【.*?】/g, "").trim();
+
+  // 比較価格を取得
+  const [comparisons, setComparisons] = useState<ComparisonPrice[]>([]);
+  useEffect(() => {
+    fetch(`/api/price-comparison?courseId=${course.id}&courseName=${encodeURIComponent(cleanName)}`)
+      .then((r) => r.json())
+      .then((data) => setComparisons(data.comparisons ?? []))
+      .catch(() => {});
+  }, [course.id, cleanName]);
 
   return (
     <div className="bg-white rounded-2xl shadow-card hover:shadow-card-hover transition-all duration-300 overflow-hidden border border-gray-100 group">
@@ -180,46 +205,60 @@ export default function GolfCourseCard({ course, rank }: Props) {
             <span className="text-[11px] font-semibold text-gray-500">🔍 他サイトで料金を比較</span>
           </div>
 
-          {/* じゃらん */}
-          <a
-            href={toJalanAffiliateUrl(cleanName)}
-            target="_blank"
-            rel="nofollow"
-            className="flex items-center justify-between px-3 py-2 hover:bg-orange-50/50 transition-colors border-b border-gray-50"
-          >
-            <span className="bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">じゃらん</span>
-            <span className="text-xs text-gray-400 group-hover:text-orange-500">料金を確認 ›</span>
-          </a>
-
-          {/* アコーディア */}
-          {isAccordia && (
+          {/* スクレイピングデータがあるサイト */}
+          {comparisons.map((c) => (
             <a
-              href={`https://reserve.accordiagolf.com/`}
+              key={c.site}
+              href={c.reserveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 transition-colors border-b border-gray-50"
+            >
+              <span className={`${SITE_COLORS[c.site] ?? "bg-gray-500"} text-white text-[10px] font-bold px-2 py-0.5 rounded`}>
+                {c.siteName}
+              </span>
+              <span className="text-xs font-bold text-golf-green">
+                ¥{c.minPrice.toLocaleString()}〜 ›
+              </span>
+            </a>
+          ))}
+
+          {/* じゃらんデータがなければリンクのみ */}
+          {!comparisons.some((c) => c.site === "jalan") && (
+            <a
+              href={toJalanAffiliateUrl(cleanName)}
+              target="_blank"
+              rel="nofollow"
+              className="flex items-center justify-between px-3 py-2 hover:bg-orange-50/50 transition-colors border-b border-gray-50"
+            >
+              <span className="bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">じゃらん</span>
+              <span className="text-xs text-gray-400">料金を確認 ›</span>
+            </a>
+          )}
+
+          {/* アコーディアデータがなければリンクのみ */}
+          {isAccordia && !comparisons.some((c) => c.site === "accordia") && (
+            <a
+              href="https://reserve.accordiagolf.com/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-between px-3 py-2 hover:bg-blue-50/50 transition-colors border-b border-gray-50"
             >
-              <div className="flex items-center gap-2">
-                <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">アコーディア</span>
-                <span className="text-[10px] text-orange-500">安い場合あり</span>
-              </div>
-              <span className="text-xs text-gray-400">確認 ›</span>
+              <span className="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">アコーディア</span>
+              <span className="text-xs text-gray-400">料金を確認 ›</span>
             </a>
           )}
 
-          {/* PGM */}
-          {isPGM && (
+          {/* PGMデータがなければリンクのみ */}
+          {isPGM && !comparisons.some((c) => c.site === "pgm") && (
             <a
               href="https://booking.pacificgolf.co.jp/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-between px-3 py-2 hover:bg-emerald-50/50 transition-colors"
             >
-              <div className="flex items-center gap-2">
-                <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">PGM</span>
-                <span className="text-[10px] text-orange-500">安い場合あり</span>
-              </div>
-              <span className="text-xs text-gray-400">確認 ›</span>
+              <span className="bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">PGM</span>
+              <span className="text-xs text-gray-400">料金を確認 ›</span>
             </a>
           )}
         </div>
