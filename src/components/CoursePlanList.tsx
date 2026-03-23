@@ -140,7 +140,7 @@ export default function CoursePlanList({
         }
 
         // Supabaseのスクレイピングデータで価格を上書き
-        fetch(`/api/price-comparison?courseId=${courseId}`)
+        fetch(`/api/price-comparison?courseId=${courseId}&courseName=${encodeURIComponent(cleanName)}`)
           .then((r) => r.json())
           .then((cData) => {
             for (const c of cData.comparisons ?? []) {
