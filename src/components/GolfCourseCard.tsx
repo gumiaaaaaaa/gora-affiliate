@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import type { GolfCourse } from "@/types/golf-course";
 
-// じゃらんゴルフ検索URL（コース名のブランド名を除去して検索精度UP）
+// じゃらんゴルフ検索URL → バリューコマースアフィリエイトリンク経由
 function toJalanAffiliateUrl(courseName: string): string {
   const clean = courseName
     .replace(/【.*?】/g, "")
@@ -13,7 +13,8 @@ function toJalanAffiliateUrl(courseName: string): string {
     .replace(/\s*\(.*?\)/g, "")
     .replace(/〔.*?〕/g, "")
     .trim();
-  return `https://golf-jalan.net/search/?keyword=${encodeURIComponent(clean)}`;
+  const jalanUrl = `https://golf-jalan.net/search/?keyword=${encodeURIComponent(clean)}`;
+  return `//ck.jp.ap.valuecommerce.com/servlet/referral?sid=3765885&pid=892570320&vc_url=${encodeURIComponent(jalanUrl)}`;
 }
 
 type ComparisonPrice = {

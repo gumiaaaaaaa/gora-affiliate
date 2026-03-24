@@ -114,7 +114,7 @@ export default function CoursePlanList({
           siteName: "じゃらん",
           planName: "",
           minPrice: 0,
-          reserveUrl: `https://golf-jalan.net/search/?keyword=${encodeURIComponent(cleanName)}`,
+          reserveUrl: `//ck.jp.ap.valuecommerce.com/servlet/referral?sid=3765885&pid=892570320&vc_url=${encodeURIComponent(`https://golf-jalan.net/search/?keyword=${encodeURIComponent(cleanName)}`)}`,
         });
 
         // アコーディア公式
