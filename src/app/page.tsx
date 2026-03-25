@@ -4,6 +4,7 @@ import { AREAS } from "@/constants/areas";
 import HeroSlider from "@/components/HeroSlider";
 import QuickSearch from "@/components/QuickSearch";
 import GolfItemsCarousel from "@/components/GolfItemsCarousel";
+import RecommendedCourses from "@/components/RecommendedCourses";
 
 export const metadata: Metadata = {
   description: "関東エリア（東京・千葉・埼玉・神奈川・茨城・栃木・群馬）のゴルフ場を楽天GORA・じゃらん・アコーディア・PGMで最安値比較。エリア・予算・プレースタイルから最適なゴルフ場が見つかる。",
@@ -100,6 +101,9 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* 本日のおすすめ */}
+      <RecommendedCourses />
 
       {/* エリア */}
       <section className="max-w-6xl mx-auto px-4 py-20">
