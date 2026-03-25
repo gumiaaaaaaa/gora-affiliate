@@ -131,6 +131,7 @@ export type PlanFilter = {
 
 type PlanSearchParams = {
   areaCode?: number;
+  keyword?: string;
   playDate: string;
   minPrice?: number;
   maxPrice?: number;
@@ -150,6 +151,7 @@ export async function searchPlans(params: PlanSearchParams): Promise<{
   query.set("page", String(params.page ?? 1));
 
   if (params.areaCode) query.set("areaCode", String(params.areaCode));
+  if (params.keyword) query.set("keyword", params.keyword);
   if (params.minPrice) query.set("minPrice", String(params.minPrice));
   if (params.maxPrice) query.set("maxPrice", String(params.maxPrice));
 

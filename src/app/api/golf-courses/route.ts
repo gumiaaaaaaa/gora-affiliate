@@ -107,6 +107,7 @@ export async function GET(request: NextRequest) {
   const date = params.get("date") ?? "";
   const round = params.get("round") ?? "";
   const playStyles = params.get("playStyles") ?? "";
+  const keyword = params.get("keyword") ?? "";
 
   // APIキーが設定されていない場合はモックデータを返す
   if (!process.env.RAKUTEN_APP_ID || !process.env.RAKUTEN_ACCESS_KEY) {
@@ -138,6 +139,7 @@ export async function GET(request: NextRequest) {
         playDate: date,
         minPrice: budgetRange.min,
         maxPrice: budgetRange.max,
+        keyword: keyword || undefined,
         hits: 30,
         filter: hasFilter ? planFilter : undefined,
       });
@@ -162,6 +164,7 @@ export async function GET(request: NextRequest) {
     // 日付なしの場合はゴルフ場検索
     const result = await searchGolfCourses({
       areaCode: rakutenAreaCode,
+      keyword: keyword || undefined,
       hits: 30,
     });
 

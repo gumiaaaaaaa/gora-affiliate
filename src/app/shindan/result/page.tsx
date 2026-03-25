@@ -42,6 +42,7 @@ function ResultContent() {
   const startTime = searchParams.get("startTime") ?? "";
   const round = searchParams.get("round") ?? "";
   const playStyles = searchParams.get("playStyles") ?? "";
+  const keyword = searchParams.get("keyword") ?? "";
 
   const [courses, setCourses] = useState<GolfCourse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,6 +53,7 @@ function ResultContent() {
       setLoading(true);
       try {
         const params = new URLSearchParams();
+        if (keyword) params.set("keyword", keyword);
         if (area) params.set("area", area);
         if (subArea) params.set("subArea", subArea);
         if (budget) params.set("budget", budget);
@@ -80,6 +82,7 @@ function ResultContent() {
 
   // 条件タグ
   const conditions = [
+    keyword && { label: "キーワード", value: keyword },
     area && { label: "エリア", value: getAreaLabel(area) },
     subArea && { label: "詳細エリア", value: getSubAreaLabel(area, subArea) },
     budget && { label: "予算", value: getLabel(BUDGET_RANGES, budget) },
