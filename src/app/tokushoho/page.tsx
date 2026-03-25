@@ -2,6 +2,17 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "特定商取引法に基づく表記",
+  description: "ゴルプラ比較の特定商取引法に基づく表記。運営者情報、連絡先、サービス内容について。",
+  alternates: { canonical: "/tokushoho" },
+  openGraph: {
+    title: "特定商取引法に基づく表記 | ゴルプラ比較",
+    description: "ゴルプラ比較の特定商取引法に基づく表記。",
+    url: "/tokushoho",
+  },
+  twitter: {
+    card: "summary",
+    title: "特定商取引法に基づく表記 | ゴルプラ比較",
+  },
 };
 
 export default function TokushohoPage() {

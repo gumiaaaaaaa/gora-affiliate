@@ -329,12 +329,41 @@ function SearchForm() {
 
 export default function ShindanPage() {
   return (
-    <Suspense fallback={
-      <div className="flex justify-center items-center py-20">
-        <div className="text-gray-400">読み込み中...</div>
+    <>
+      <Suspense fallback={
+        <div className="flex justify-center items-center py-20">
+          <div className="text-gray-400">読み込み中...</div>
+        </div>
+      }>
+        <SearchForm />
+      </Suspense>
+
+      {/* エリア別リンク */}
+      <div className="max-w-4xl mx-auto px-4 pb-12">
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-sm font-bold text-gray-700 mb-3">📍 エリア別のゴルフ場一覧</h2>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { code: "tokyo", name: "東京" }, { code: "chiba", name: "千葉" },
+              { code: "saitama", name: "埼玉" }, { code: "kanagawa", name: "神奈川" },
+              { code: "ibaraki", name: "茨城" }, { code: "tochigi", name: "栃木" },
+              { code: "gunma", name: "群馬" },
+            ].map((a) => (
+              <a key={a.code} href={`/area/${a.code}`} className="text-xs bg-green-50 text-golf-green px-3 py-1.5 rounded-full hover:bg-green-100 transition-colors">
+                {a.name}のゴルフ場
+              </a>
+            ))}
+          </div>
+          <h2 className="text-sm font-bold text-gray-700 mt-5 mb-3">📝 ゴルフ場選びのお役立ち情報</h2>
+          <div className="flex flex-wrap gap-2">
+            <a href="/blog/golf-2b-surcharge" className="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded-full hover:bg-gray-100">2B割増とは？</a>
+            <a href="/blog/2sum-guarantee-kanto" className="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded-full hover:bg-gray-100">2サム保証コース</a>
+            <a href="/blog/weekday-golf-under5000" className="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded-full hover:bg-gray-100">平日5000円以下</a>
+            <a href="/blog/rakuten-vs-jalan" className="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded-full hover:bg-gray-100">楽天 vs じゃらん</a>
+            <a href="/faq" className="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded-full hover:bg-gray-100">よくある質問</a>
+          </div>
+        </div>
       </div>
-    }>
-      <SearchForm />
-    </Suspense>
+    </>
   );
 }

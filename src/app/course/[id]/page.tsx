@@ -154,13 +154,13 @@ export async function generateMetadata({
       title: `${course.golfCourseName} | ゴルプラ比較`,
       description: `${course.golfCourseName}の最安値プランを比較。${course.address}。`,
       url: `/course/${id}`,
-      images: course.golfCourseImageUrl ? [{ url: course.golfCourseImageUrl }] : [],
+      images: course.golfCourseImageUrl ? [{ url: course.golfCourseImageUrl }] : [{ url: "/opengraph-image" }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${course.golfCourseName} | ゴルプラ比較`,
       description: `${course.golfCourseName}の最安値プランを比較。${course.address}。`,
-      images: course.golfCourseImageUrl ? [course.golfCourseImageUrl] : [],
+      images: course.golfCourseImageUrl ? [course.golfCourseImageUrl] : ["/opengraph-image"],
     },
   };
 }
@@ -215,6 +215,16 @@ export default async function CourseDetailPage({
       longitude: longitude,
     } : undefined,
     numberOfHoles: holeCount,
+    ...(weekdayMin > 0 ? {
+      offers: {
+        "@type": "AggregateOffer",
+        priceCurrency: "JPY",
+        lowPrice: weekdayMin,
+        ...(holidayMin > 0 ? { highPrice: holidayMin } : {}),
+        availability: "https://schema.org/InStock",
+        url: `https://golf-plat.com/course/${id}`,
+      },
+    } : {}),
   };
 
   // パンくずリスト構造化データ

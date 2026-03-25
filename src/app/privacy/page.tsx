@@ -1,3 +1,22 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "プライバシーポリシー",
+  description: "ゴルプラ比較のプライバシーポリシー。個人情報の取り扱い、Cookie、アフィリエイトリンクについて。",
+  alternates: { canonical: "/privacy" },
+  openGraph: {
+    title: "プライバシーポリシー | ゴルプラ比較",
+    description: "ゴルプラ比較のプライバシーポリシー。個人情報の取り扱いについて。",
+    url: "/privacy",
+  },
+  twitter: {
+    card: "summary",
+    title: "プライバシーポリシー | ゴルプラ比較",
+    description: "ゴルプラ比較のプライバシーポリシー。",
+  },
+};
+
 export default function PrivacyPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-14">

@@ -7,7 +7,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/about" },
   openGraph: {
     title: "運営者情報 | ゴルプラ比較",
+    description: "ゴルプラ比較の運営者情報。関東エリアのゴルフ場を最安値で比較できるサイトの運営について。",
     url: "/about",
+  },
+  twitter: {
+    card: "summary",
+    title: "運営者情報 | ゴルプラ比較",
+    description: "ゴルプラ比較の運営者情報。",
   },
 };
 

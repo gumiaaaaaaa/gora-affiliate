@@ -6,7 +6,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/contact" },
   openGraph: {
     title: "お問い合わせ | ゴルプラ比較",
+    description: "ゴルプラ比較へのお問い合わせ。ご質問やご要望をお気軽にどうぞ。",
     url: "/contact",
+  },
+  twitter: {
+    card: "summary",
+    title: "お問い合わせ | ゴルプラ比較",
+    description: "ゴルプラ比較へのお問い合わせ。",
   },
 };
 

@@ -8,7 +8,13 @@ export const metadata: Metadata = {
   alternates: { canonical: "/blog" },
   openGraph: {
     title: "ゴルフコラム | ゴルプラ比較",
+    description: "関東エリアのゴルフ場選びに役立つコラム・ガイド記事。初心者向け、エリア別おすすめ、コスパ比較。",
     url: "/blog",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ゴルフコラム | ゴルプラ比較",
+    description: "関東エリアのゴルフ場選びに役立つコラム・ガイド記事。",
   },
 };
 

@@ -59,6 +59,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
+      <head>
+        <link rel="preconnect" href="https://gora.golf.rakuten.co.jp" />
+        <link rel="preconnect" href="https://booking.gora.golf.rakuten.co.jp" />
+        <link rel="dns-prefetch" href="https://golf-jalan.net" />
+      </head>
       <body className="flex flex-col min-h-screen">
         <GoogleAnalytics />
         {/* バリューコマース LinkSwitch（じゃらんゴルフ等のリンクを自動アフィリエイト化） */}
