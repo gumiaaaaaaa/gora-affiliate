@@ -20,33 +20,47 @@ export default function RecommendedCourses() {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // 今日の日付で人気コースを取得
+    const areas = ["tokyo", "chiba", "saitama", "kanagawa", "ibaraki", "tochigi", "gunma"];
+    const prefNames: Record<string, string> = {
+      tokyo: "東京都", chiba: "千葉県", saitama: "埼玉県", kanagawa: "神奈川県",
+      ibaraki: "茨城県", tochigi: "栃木県", gunma: "群馬県",
+    };
     const today = new Date();
     const playDate = new Date(today);
-    playDate.setDate(today.getDate() + ((6 - today.getDay()) % 7 || 7)); // 次の土曜
+    playDate.setDate(today.getDate() + ((6 - today.getDay()) % 7 || 7));
     const dateStr = playDate.toISOString().split("T")[0];
 
-    fetch(`/api/golf-courses?area=chiba&date=${dateStr}&hits=10&sort=rating`)
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.courses) {
-          const mapped = data.courses
-            .filter((c: any) => c.imageUrl && c.minPrice > 0)
-            .slice(0, 10)
-            .map((c: any) => ({
-              id: c.id,
-              name: c.name.replace(/【.*?】/g, "").trim(),
-              imageUrl: c.imageUrl,
-              prefecture: c.prefecture || "千葉県",
-              evaluation: c.rating || 0,
-              minPrice: c.minPrice || 0,
-              planName: c.plans?.[0]?.name || "",
-            }));
-          setCourses(mapped);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
+    // 各県から2件ずつ取得して混ぜる
+    Promise.all(
+      areas.map((area) =>
+        fetch(`/api/golf-courses?area=${area}&date=${dateStr}&hits=3&sort=rating`)
+          .then((r) => r.json())
+          .then((data) =>
+            (data.courses || [])
+              .filter((c: any) => c.imageUrl && c.minPrice > 0)
+              .slice(0, 2)
+              .map((c: any) => ({
+                id: c.id,
+                name: c.name.replace(/【.*?】/g, "").trim(),
+                imageUrl: c.imageUrl,
+                prefecture: c.prefecture || prefNames[area] || "",
+                evaluation: c.rating || 0,
+                minPrice: c.minPrice || 0,
+                planName: c.plans?.[0]?.name || "",
+              }))
+          )
+          .catch(() => [])
+      )
+    ).then((results) => {
+      // 各県のコースをシャッフルして最大14件
+      const all = results.flat();
+      for (let i = all.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [all[i], all[j]] = [all[j], all[i]];
+      }
+      setCourses(all.slice(0, 14));
+      setLoading(false);
+    });
   }, []);
 
   // 自動スクロール
