@@ -127,8 +127,8 @@ export default function QuickSearch() {
           disabled={!area && !keyword.trim()}
           className={`flex-1 py-3.5 rounded-xl font-bold text-base transition-all ${
             area || keyword.trim()
-              ? "bg-white text-golf-green hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-              : "bg-white/30 text-white/60 cursor-not-allowed"
+              ? "bg-gradient-to-r from-golf-gold to-golf-gold-dark text-golf-dark hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-golf-gold/20"
+              : "bg-white/20 text-white/50 cursor-not-allowed"
           }`}
         >
           {area && count !== null && count > 0 && !loading

@@ -200,7 +200,7 @@ export default function GolfCourseCard({ course, rank }: Props) {
             href={course.rakutenUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-[2] text-center bg-golf-green text-white font-semibold py-2.5 rounded-xl hover:bg-golf-light active:scale-[0.98] transition-all text-sm"
+            className="flex-[2] text-center bg-gradient-to-r from-golf-green to-golf-light text-white font-semibold py-2.5 rounded-xl hover:shadow-lg active:scale-[0.98] transition-all text-sm"
           >
             予約する →
           </a>

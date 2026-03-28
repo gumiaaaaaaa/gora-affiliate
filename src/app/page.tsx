@@ -68,21 +68,21 @@ export default function HomePage() {
       <section className="text-white relative overflow-hidden">
         <HeroSlider />
         <div className="max-w-4xl mx-auto px-4 py-24 md:py-32 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-sm text-green-200 mb-6">
-            <span className="w-1.5 h-1.5 bg-green-400 rounded-full animate-pulse" />
+          <div className="inline-flex items-center gap-2 bg-golf-gold/20 backdrop-blur-sm border border-golf-gold/30 rounded-full px-4 py-1.5 text-sm text-golf-gold-light mb-6">
+            <span className="w-1.5 h-1.5 bg-golf-gold rounded-full animate-pulse" />
             関東7都県 2,000+コース対応
           </div>
 
           <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6 tracking-tight">
             <span className="sr-only">ゴルプラ比較 - </span>
-            最安値のゴルフ場が
+            <span className="text-golf-gold">最安値</span>のゴルフ場が
             <br />
             すぐに見つかる
           </h1>
-          <p className="text-green-200 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
-            エリア・日付を選ぶだけで、
+          <p className="text-gray-300 text-lg mb-8 max-w-lg mx-auto leading-relaxed">
+            楽天GORA・じゃらん・公式サイトの料金を
             <br className="hidden sm:block" />
-            最安プランを比較できます。
+            <span className="text-golf-gold font-semibold">一括比較</span>。最安プランが一目でわかる。
           </p>
 
           {/* 簡易検索フォーム */}
@@ -108,7 +108,7 @@ export default function HomePage() {
       {/* エリア */}
       <section className="max-w-6xl mx-auto px-4 py-20">
         <div className="text-center mb-10">
-          <p className="text-golf-green text-sm font-semibold tracking-widest uppercase mb-2">
+          <p className="text-golf-gold text-sm font-semibold tracking-widest uppercase mb-2">
             Area
           </p>
           <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
@@ -137,7 +137,7 @@ export default function HomePage() {
       <section className="bg-white py-20">
         <div className="max-w-6xl mx-auto px-4">
           <div className="text-center mb-10">
-            <p className="text-golf-green text-sm font-semibold tracking-widest uppercase mb-2">
+            <p className="text-golf-gold text-sm font-semibold tracking-widest uppercase mb-2">
               Category
             </p>
             <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
