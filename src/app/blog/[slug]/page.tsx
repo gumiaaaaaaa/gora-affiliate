@@ -109,8 +109,13 @@ export default async function BlogPostPage({
     ],
   };
 
+  // 人気記事TOP5（PV順の代替として新しい順 + カテゴリ分散）
+  const popularPosts = allPosts
+    .filter((p) => p.slug !== slug)
+    .slice(0, 5);
+
   return (
-    <div className="max-w-3xl mx-auto px-4 py-12">
+    <div className="max-w-6xl mx-auto px-4 py-12">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd).replace(/<\//g, "<\\/") }}
@@ -128,7 +133,9 @@ export default async function BlogPostPage({
         <span className="text-gray-600">{post.title}</span>
       </nav>
 
-      <article>
+      <div className="flex flex-col lg:flex-row gap-8">
+      {/* メイン記事 */}
+      <article className="flex-1 min-w-0">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-3">
             {post.category && (
@@ -187,7 +194,6 @@ export default async function BlogPostPage({
         <div className="mt-8 pt-6 border-t border-gray-100">
           <ShareButtons url={`/blog/${slug}`} title={post.title} />
         </div>
-      </article>
 
       {/* 関連記事 */}
       {relatedPosts.length > 0 && (
@@ -230,6 +236,74 @@ export default async function BlogPostPage({
             ゴルフ場を検索する →
           </Link>
         </div>
+      </div>
+      </article>
+
+      {/* サイドバー */}
+      <aside className="w-full lg:w-72 shrink-0">
+        <div className="lg:sticky lg:top-20 space-y-6">
+          {/* 人気記事TOP5 */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-golf-green px-4 py-3">
+              <h3 className="text-white text-sm font-bold">🔥 人気記事 TOP5</h3>
+            </div>
+            <div className="divide-y divide-gray-50">
+              {popularPosts.map((pp, i) => (
+                <Link key={pp.slug} href={`/blog/${pp.slug}`} className="flex gap-3 p-3 hover:bg-gray-50 transition-colors group">
+                  <span className="text-lg font-bold text-golf-green/30 w-6 shrink-0">{i + 1}</span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-gray-700 group-hover:text-golf-green transition-colors line-clamp-2 leading-snug">
+                      {pp.title}
+                    </p>
+                    <span className="text-[10px] text-gray-400 mt-1 inline-block">{pp.category}</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* ゴルフ場検索CTA */}
+          <div className="bg-golf-green/5 border border-golf-green/10 rounded-2xl p-4 text-center">
+            <p className="text-xs text-gray-600 mb-2">⛳ 最安値で予約するなら</p>
+            <Link href="/shindan" className="block bg-golf-green text-white text-sm font-bold py-3 rounded-xl hover:bg-golf-light transition-colors">
+              ゴルフ場を検索する →
+            </Link>
+          </div>
+
+          {/* カテゴリ一覧 */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
+              <h3 className="text-gray-700 text-sm font-bold">📂 カテゴリ</h3>
+            </div>
+            <div className="p-3 flex flex-wrap gap-2">
+              {[...new Set(allPosts.map((p) => p.category))].filter(Boolean).map((cat) => (
+                <Link key={cat} href={`/blog?category=${encodeURIComponent(cat)}`} className="text-xs bg-gray-50 text-gray-600 px-3 py-1.5 rounded-full hover:bg-golf-green/10 hover:text-golf-green transition-colors">
+                  {cat}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* エリア別リンク */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+            <div className="bg-gray-50 px-4 py-3 border-b border-gray-100">
+              <h3 className="text-gray-700 text-sm font-bold">📍 エリア別</h3>
+            </div>
+            <div className="p-3 flex flex-wrap gap-2">
+              {[
+                { code: "tokyo", name: "東京" }, { code: "chiba", name: "千葉" },
+                { code: "saitama", name: "埼玉" }, { code: "kanagawa", name: "神奈川" },
+                { code: "ibaraki", name: "茨城" }, { code: "tochigi", name: "栃木" },
+                { code: "gunma", name: "群馬" },
+              ].map((a) => (
+                <Link key={a.code} href={`/area/${a.code}`} className="text-xs bg-green-50 text-golf-green px-3 py-1.5 rounded-full hover:bg-green-100 transition-colors">
+                  {a.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </aside>
       </div>
     </div>
   );
