@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { marked } from "marked";
 
 export type BlogPost = {
   slug: string;
@@ -14,7 +15,7 @@ export type BlogPost = {
 
 const BLOG_DIR = path.join(process.cwd(), "content/blog");
 
-// frontmatter解析（ライブラリなしのシンプル実装）
+// frontmatter解析
 function parseFrontmatter(raw: string): { meta: Record<string, string>; content: string } {
   const match = raw.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
   if (!match) return { meta: {}, content: raw };
@@ -31,22 +32,15 @@ function parseFrontmatter(raw: string): { meta: Record<string, string>; content:
   return { meta, content: match[2].trim() };
 }
 
-// Markdown → HTML（シンプル変換）
+// marked設定（テーブル・GFM対応）
+marked.setOptions({
+  gfm: true,
+  breaks: true,
+});
+
+// Markdown → HTML
 function markdownToHtml(md: string): string {
-  return md
-    // 見出し
-    .replace(/^### (.+)$/gm, '<h3 class="text-lg font-bold text-gray-800 mt-8 mb-3">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-xl font-bold text-gray-800 mt-10 mb-4">$1</h2>')
-    // リンク
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-golf-green hover:underline">$1</a>')
-    // 太字
-    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    // リスト
-    .replace(/^- (.+)$/gm, '<li class="ml-4 text-gray-600">$1</li>')
-    // 段落
-    .replace(/^(?!<[hl]|<li)(.+)$/gm, '<p class="text-gray-600 leading-relaxed mb-4">$1</p>')
-    // 連続liをulで囲む
-    .replace(/(<li[^>]*>.*<\/li>\n?)+/g, '<ul class="list-disc mb-4 space-y-1">$&</ul>');
+  return marked.parse(md) as string;
 }
 
 export function getAllPosts(): BlogPost[] {
