@@ -28,3 +28,229 @@ input[type="date"] {
 *:focus-visible {
   @apply outline-2 outline-offset-2 outline-golf-green;
 }
+
+/* ========================================
+   SWELL風 ブログ記事スタイル
+   ======================================== */
+
+/* 見出し H2: グリーンの左ボーダー + 背景 */
+.prose h2 {
+  position: relative;
+  padding: 0.75rem 1rem 0.75rem 1.25rem;
+  margin-top: 2.5rem;
+  margin-bottom: 1.25rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #1B5E3A;
+  background: linear-gradient(90deg, #f0fdf4, transparent);
+  border-left: 4px solid #1B5E3A;
+  border-bottom: 1px solid #dcfce7;
+  border-radius: 0 8px 8px 0;
+}
+
+/* 見出し H3: アンダーライン風 */
+.prose h3 {
+  position: relative;
+  padding-bottom: 0.5rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #166534;
+  border-bottom: 2px solid #bbf7d0;
+}
+
+.prose h3::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 80px;
+  height: 2px;
+  background: #1B5E3A;
+}
+
+/* 段落 */
+.prose p {
+  line-height: 1.9;
+  margin-bottom: 1.25rem;
+  color: #374151;
+}
+
+/* リスト */
+.prose ul {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.25rem 1.25rem 1.25rem 2.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #f3f4f6;
+}
+
+.prose ul li {
+  margin-bottom: 0.5rem;
+  line-height: 1.8;
+}
+
+.prose ul li::marker {
+  color: #1B5E3A;
+}
+
+.prose ol {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 1.25rem 1.25rem 1.25rem 2.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #f3f4f6;
+}
+
+.prose ol li {
+  margin-bottom: 0.5rem;
+  line-height: 1.8;
+}
+
+.prose ol li::marker {
+  color: #1B5E3A;
+  font-weight: 700;
+}
+
+/* テーブル */
+.prose table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.prose thead th {
+  background: #1B5E3A;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border: none;
+}
+
+.prose tbody td {
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid #f3f4f6;
+  background: white;
+}
+
+.prose tbody tr:nth-child(even) td {
+  background: #f9fafb;
+}
+
+.prose tbody tr:hover td {
+  background: #f0fdf4;
+}
+
+/* リンク */
+.prose a {
+  color: #1B5E3A;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px dashed #bbf7d0;
+  transition: all 0.2s;
+}
+
+.prose a:hover {
+  color: #15803d;
+  border-bottom-color: #15803d;
+  border-bottom-style: solid;
+}
+
+/* 強調（太字） */
+.prose strong {
+  color: #1B5E3A;
+  font-weight: 700;
+  background: linear-gradient(transparent 60%, #fef08a 60%);
+  padding: 0 2px;
+}
+
+/* コードブロック（引用風ボックスとしても使用） */
+.prose blockquote {
+  background: #fffbeb;
+  border-left: 4px solid #c9a84c;
+  border-radius: 0 12px 12px 0;
+  padding: 1rem 1.25rem;
+  margin: 1.5rem 0;
+  font-style: normal;
+  color: #92400e;
+}
+
+.prose blockquote p {
+  margin: 0;
+  color: #92400e;
+}
+
+/* 画像 */
+.prose img {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin: 1.5rem 0;
+}
+
+/* HR */
+.prose hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #bbf7d0, transparent);
+  margin: 2.5rem 0;
+}
+
+/* ========================================
+   目次スタイル
+   ======================================== */
+.blog-toc {
+  background: linear-gradient(135deg, #f0fdf4 0%, #fefce8 100%);
+  border: 1px solid #dcfce7;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.blog-toc h2 {
+  padding: 0;
+  margin: 0 0 0.75rem 0;
+  background: none;
+  border: none;
+  font-size: 0.9rem;
+  color: #1B5E3A;
+}
+
+.blog-toc h2::before {
+  content: none;
+}
+
+.blog-toc ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+}
+
+.blog-toc li {
+  margin: 0;
+  padding: 0;
+}
+
+.blog-toc a {
+  display: block;
+  padding: 0.4rem 0;
+  color: #374151;
+  font-size: 0.875rem;
+  border-bottom: 1px dotted #e5e7eb;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.blog-toc a:hover {
+  color: #1B5E3A;
+  padding-left: 0.5rem;
+}

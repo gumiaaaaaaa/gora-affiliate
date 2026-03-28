@@ -155,13 +155,13 @@ export default async function BlogPostPage({
 
         {/* 目次 */}
         {toc.length >= 3 && (
-          <nav className="bg-gray-50 rounded-xl p-5 mb-8 border border-gray-100">
-            <h2 className="text-sm font-bold text-gray-700 mb-3">📋 この記事の目次</h2>
-            <ul className="space-y-1.5">
+          <nav className="blog-toc">
+            <h2>📋 この記事の目次</h2>
+            <ul>
               {toc.map((item) => (
-                <li key={item.id} className={item.level === 3 ? "ml-4" : ""}>
-                  <a href={`#${item.id}`} className="text-sm text-golf-green hover:underline">
-                    {item.level === 2 ? "■ " : "└ "}{item.text}
+                <li key={item.id} className={item.level === 3 ? "ml-5" : ""}>
+                  <a href={`#${item.id}`}>
+                    {item.level === 2 ? "● " : "└ "}{item.text}
                   </a>
                 </li>
               ))}
@@ -170,7 +170,7 @@ export default async function BlogPostPage({
         )}
 
         <div
-          className="prose prose-sm max-w-none"
+          className="prose prose-base max-w-none prose-headings:font-bold"
           dangerouslySetInnerHTML={{ __html: contentWithIds }}
         />
 
@@ -191,19 +191,25 @@ export default async function BlogPostPage({
 
       {/* 関連記事 */}
       {relatedPosts.length > 0 && (
-        <div className="mt-12">
-          <h2 className="text-lg font-bold text-gray-800 mb-4">📖 関連記事</h2>
+        <div className="mt-12 bg-white rounded-2xl border border-gray-100 p-6">
+          <h2 className="text-lg font-bold text-golf-green mb-5 flex items-center gap-2">
+            <span className="bg-golf-green text-white text-xs px-2 py-0.5 rounded">PICK UP</span>
+            あわせて読みたい
+          </h2>
           <div className="grid gap-4 md:grid-cols-3">
             {relatedPosts.map((rp) => (
-              <Link key={rp.slug} href={`/blog/${rp.slug}`} className="group block bg-white rounded-xl border border-gray-100 overflow-hidden hover:shadow-md transition-shadow">
+              <Link key={rp.slug} href={`/blog/${rp.slug}`} className="group block bg-gray-50 rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
                 {rp.image && (
-                  <img src={rp.image} alt={`${rp.title} アイキャッチ`} className="w-full h-32 object-cover" />
+                  <img src={rp.image} alt={`${rp.title} アイキャッチ`} className="w-full h-36 object-cover" />
                 )}
-                <div className="p-3">
-                  <p className="text-sm font-semibold text-gray-800 group-hover:text-golf-green transition-colors line-clamp-2">
+                <div className="p-4">
+                  <p className="text-sm font-bold text-gray-800 group-hover:text-golf-green transition-colors line-clamp-2 leading-snug">
                     {rp.title}
                   </p>
-                  <time className="text-[10px] text-gray-400 mt-1 block">{rp.date}</time>
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-[10px] bg-golf-green/10 text-golf-green px-2 py-0.5 rounded-full">{rp.category}</span>
+                    <time className="text-[10px] text-gray-400">{rp.date}</time>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -212,15 +218,18 @@ export default async function BlogPostPage({
       )}
 
       {/* CTA */}
-      <div className="mt-12 bg-golf-cream rounded-2xl p-8 text-center">
-        <h2 className="font-bold text-gray-800 mb-2">ゴルフ場を探す</h2>
-        <p className="text-sm text-gray-500 mb-4">エリア・予算・条件から最安値プランを比較</p>
-        <Link
-          href="/shindan"
-          className="inline-block bg-golf-green text-white font-semibold px-8 py-3 rounded-xl hover:bg-golf-light transition-colors"
-        >
-          ゴルフ場検索 →
-        </Link>
+      <div className="mt-12 golf-gradient rounded-2xl p-8 text-center text-white relative overflow-hidden">
+        <div className="absolute inset-0 opacity-10" style={{backgroundImage: "url(/images/cta-golf.jpg)", backgroundSize: "cover"}} />
+        <div className="relative z-10">
+          <p className="text-green-200 text-sm mb-1">🔍 楽天GORA・じゃらん・公式サイトの料金を一括比較</p>
+          <h2 className="font-extrabold text-2xl mb-4">最安値でゴルフ場を予約しよう</h2>
+          <Link
+            href="/shindan"
+            className="inline-block bg-white text-golf-green font-bold px-10 py-3.5 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-lg"
+          >
+            ゴルフ場を検索する →
+          </Link>
+        </div>
       </div>
     </div>
   );
